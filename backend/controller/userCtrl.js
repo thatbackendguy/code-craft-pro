@@ -12,20 +12,120 @@ const User = require("../models/userModel");
 
 const { sendEmail } = require("./emailCtrl");
 
+function generateOTP() {
+	return Math.floor(100000 + Math.random() * 900000);
+}
+
 // signup - create user
 const createUser = asyncHandler(async (req, res) => {
-	const email = req.body.email;
-	const findUser = await User.findOne({ email: email });
+	
+	const newUserData = {
+		name: req.body.name,
+		username: req.body.username,
+		mobile: req.body.mobile,
+		email: req.body.email,
+		password: req.body.password,
+		otp: generateOTP(),
+	}
+
+	// checking if user exists or not
+	const findUser = await User.findOne({ email: newUserData.email });
 
 	if (!findUser) {
 		try {
-			const newUser = await User.create(req.body);
+			// Insert user into database
+			const newUser = await User.create(newUserData);
+			
+			// Email for OTP verification
+			try {
+				const name = newUser.name;
+				const payload = `<table class="body-wrap" style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; height: 100%; background: #efefef; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important;">
+				<tbody>
+				  <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+					<td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;"><!-- Message start -->
+					  <table style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100%; height: 200px;">
+						<tbody>
+						  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 136px;">
+							<td class="masthead" style="margin: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; background: #030014; color: white; height: 136px;" align="center">
+							  <h1>💻 CodeCraftPro.</h1>
+							</td>
+						  </tr>
+						  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 473px;">
+							<td class="content" style="margin: 0px; padding: 30px 35px; font-size: 100%; line-height: 1.65; background: #030014; height: 473px;">
+							  <h2 style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 28px; line-height: 1.25;">
+								<span style="color: #b6b2ff;">Hi ${newUser.name} 👋,</span>
+							  </h2>
+							  <p>
+								<span style="color: #b6b2ff;">Thank you for signing up with us!😃 We're excited to have you as a part of our community.&nbsp; 
+								  <br>
+								  <br>By verifying your email, you'll gain full access to all the features and benefits of CodeCraftPro 🚀. If you did not create an account with us, please disregard this email. 
+								  <br>
+								</span>
+							  </p>
+							  <table style="font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px; padding: 0px; line-height: 1.65; border-collapse: collapse; width: 98.2353%; height: 35px;">
+								<tbody>
+								  <tr style="margin: 0px; padding: 0px; font-size: 100%; line-height: 1.65;">
+									<td style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;" align="center">
+									  <p style="margin: 0px 0px 20px; padding: 0px; font-size: 16px; line-height: 1.65;">
+										<a href="{{ .ConfirmationURL }}" class="button" style="margin: 0px; padding: 0px; font-size: 100%; line-height: 1.65; color: white; display: inline-block; background: #7000FF; border-style: solid; border-color: #7000FF; border-image: initial; border-width: 10px 20px 8px; font-weight: bold; border-radius: 4px;">${newUser.otp}</a>
+									  </p>
+									</td>
+								  </tr>
+								</tbody>
+							  </table>
+							  <p style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 16px; line-height: 1.65; font-weight: normal;">
+								<span style="color: #b6b2ff;">
+								  <em style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">– Team CodeCraftPro.</em>
+								</span>
+							  </p>
+							</td>
+						  </tr>
+						</tbody>
+					  </table>
+					</td>
+				  </tr>
+				  <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+					<td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;">
+					  <span style="color: #b6b2ff;"><!-- Message start --></span>
+					  <table style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100% !important;">
+						<tbody>
+						  <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+							<td class="content footer" style="margin: 0; padding: 30px 35px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; background: none;" align="center">&copy; CodeCraftPro, 2023</td>
+						  </tr>
+						</tbody>
+					  </table>
+					</td>
+				  </tr>
+				</tbody>
+			  </table>`;
+				const data = {
+					to: newUser.email,
+					text: `Hey ${newUser.name}`,
+					subject: "OTP for User Verification",
+					htm: payload,
+				};
+
+				sendEmail(data);
+
+				res.json({
+					userID: newUser._id,
+					status: "Success",
+					message: "New user successfully created!"
+				});
+			} catch (error) {
+				throw new Error(error);
+			}
+
+			// return response
 			res.json(newUser);
 		} catch (error) {
 			throw new Error(error);
 		}
 	} else {
-		throw new Error("User Already Exists");
+		res.json({
+			status: "Error",
+			message: "Duplicate Email Found! User already exists!"
+		});
 	}
 });
 
@@ -58,7 +158,10 @@ const loginUser = asyncHandler(async (req, res) => {
 			status: "Success",
 		});
 	} else {
-		throw new Error("Invalid Credentials");
+		res.json({
+			status: "Error",
+			message: "Invalid Credentials!"
+		});
 	}
 });
 
@@ -88,6 +191,37 @@ const logout = asyncHandler(async (req, res) => {
 		message:"Logout Successful!"
 	}); // forbidden
 });
+
+// otp verification
+const otpVerification = asyncHandler(async (req, res) => {
+	
+	try {
+		validateMongoDbId(req.body.userID);
+		const user = await User.findById(req.body.userID)
+		if(user.otp.toString() === req.body.otp.toString()) {
+			user.isVerfied = true
+			user.otp = ""
+			const updatedUser = await user.save()
+
+			res.json({
+				status: "Success",
+				message: "OTP Verified!"
+			})
+		} else {
+			res.json({
+				status: "Error",
+				message: "OTP Invalid!"
+			})
+		}
+
+	} catch(e) {
+		res.json({
+			status: "Error",
+			message: e
+		})
+	}
+
+})
 
 // update password
 const updateUserPassword = asyncHandler(async (req, res) => {
@@ -222,82 +356,16 @@ const deletePassword = asyncHandler(async (req, res) => {
 	}
 });
 
-const updatePassword = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	const { id } = req.params;
-	const { name, email, password } = req.body;
-	validateMongoDbId(_id);
-
-	try {
-		const updatePass = await Password.findByIdAndUpdate(
-			id,
-			{
-				name,
-				email,
-				password: CryptoJS.AES.encrypt(
-					password,
-					process.env.AES_SECRET
-				).toString(),
-			},
-			{
-				new: true,
-			}
-		);
-		res.json({
-			message: "Password updated successfully!",
-		});
-	} catch (error) {
-		throw new Error(error);
-	}
-});
-
-const getDecryptedPass = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	validateMongoDbId(_id);
-	const { id } = req.params;
-	try {
-		var pass;
-		const user = await User.findById({ _id });
-		if (!user) throw new Error("No user found, please login again!");
-		const passwordIds = user.user_passwords;
-		for (let i = 0; i < passwordIds.length; i++) {
-			if (id == passwordIds[i]) {
-				pass = await Password.findById(id);
-				break;
-			}
-		}
-		if (pass === undefined) {
-			res.json({
-				message: "Password not found!",
-			});
-		} else {
-			res.json({
-				name: pass.name,
-				email: pass.email,
-				password: CryptoJS.AES.decrypt(
-					pass.password,
-					process.env.AES_SECRET
-				).toString(CryptoJS.enc.Utf8),
-				owner: `${user.firstname} ${user.lastname}`,
-				"owner-email": user.email,
-			});
-		}
-	} catch (error) {
-		throw new Error(error);
-	}
-});
-
 module.exports = {
 	createUser,
 	loginUser,
 	logout,
 	updateUserPassword,
-	updatePassword,
 	forgotPasswordToken,
 	resetPassword,
 	deleteUser,
 	addPassword,
 	getUserPasswords,
 	deletePassword,
-	getDecryptedPass,
+	otpVerification
 };

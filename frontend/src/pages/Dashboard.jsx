@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Editor } from '@monaco-editor/react'
 import Navbar from '../components/Navbar';
 
@@ -57,6 +57,15 @@ const Dashboard = () => {
     setCode(editorRef?.current?.getValue());
   };
 
+  // TO RESTRICT UNAUTHENTICATED LOGIN
+  useEffect(()=>{
+    const token = localStorage.getItem("token")
+
+    if(!token) {
+      window.location.replace("/login")
+    }
+  })
+  
   return (
     <Layout className="min-h-screen">
       <Navbar />

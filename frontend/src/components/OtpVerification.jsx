@@ -1,0 +1,111 @@
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios'; // Import axios for making API calls
+import Logo from '../assets/images/pig_logo.png';
+const OtpVerification = () => {
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+
+  useEffect(() => {
+    // Define a function to make the API call
+    const verifyOtp = async () => {
+      const otpValue = otp.join(''); // Join all digits to form the OTP string
+      const userID = localStorage.getItem("userID")
+      const data = {
+        otp: otpValue,
+        userID }
+        console.log(data);
+      try {
+        // Make the POST request to your API endpoint
+        const response = await axios.post('http://localhost:3000/api/user/otp-verification', data);
+
+        console.log(response.data); // Log the response data
+        // You can add further logic here based on the response
+
+        if(response.data.status === "Success") {
+            localStorage.setItem("isVerified","true")
+            window.location.replace("/login")
+        }
+      } catch (error) {
+        console.error('Error:', error); // Log any errors
+      }
+    };
+
+    // Check if all OTP digits are entered
+    if (otp.every(digit => digit !== '')) {
+      verifyOtp(); // Call the function to verify OTP
+    }
+  }, [otp]); // Run the effect whenever the otp state changes
+
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+    if (!isNaN(value) && value !== '') {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (index < 5 && value !== '') {
+        refs[index + 1].current.focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if ((e.keyCode === 8 || e.keyCode === 46) && index > 0 && otp[index] === '') {
+      const newOtp = [...otp];
+      newOtp[index - 1] = '';
+      setOtp(newOtp);
+      refs[index - 1].current.focus();
+    }
+  };
+
+  const handlePaste = (e, index) => {
+    const pasteData = e.clipboardData.getData('Text');
+    if (pasteData.length === 1 && !isNaN(pasteData)) {
+      const newOtp = [...otp];
+      newOtp[index] = pasteData;
+      setOtp(newOtp);
+      if (index < 5) {
+        setTimeout(() => refs[index + 1].current.focus(), 10);
+      }
+      e.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+
+    const isVerified = localStorage.getItem("isVerified")
+
+    if(isVerified==="true") {
+      window.location.replace("/login");
+    }
+    
+  });
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-[#020817]">
+        <div className="mb-12">
+      <div className="flex w-14 items-center justify-center mb-2 h-14 rounded-full">
+          <img src={Logo} alt="logo" className='ml-10' />
+          <h1 className="text-[35px] ml-3 font-bold text-white">CodeCraftPro.</h1>
+        </div>
+          <h3 className="text-sm text-gray-400 font-medium">OTP Verification</h3>
+          </div>
+      <div className="flex">
+        {otp.map((digit, index) => (
+          <input
+            key={index}
+            className="w-12 h-12 mx-1 rounded border border-gray-400 text-center text-xl focus:outline-none bg-white text-black"
+            type="text"
+            maxLength="1"
+            value={digit}
+            onChange={(e) => handleChange(e, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            onPaste={(e) => handlePaste(e, index)}
+            ref={refs[index]}
+          />
+        ))}
+      </div>
+      <p className="text-white mt-4">Please enter the OTP sent to your email.</p>
+    </div>
+  );
+};
+
+export default OtpVerification;

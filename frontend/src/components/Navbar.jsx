@@ -14,11 +14,13 @@ export default function Navbar() {
 
   const logout = async () => {
     try {
+      localStorage.clear()
       // Assuming the API call for logout is implemented elsewhere
       await axios.get('/api/user/logout');
       // Assuming the router is handled by React Router or other routing library
       // router.push('/login');
       toast.success('Logout Successful');
+      
     } catch (error) {
       console.error(error.message);
       toast.error(error.message);
