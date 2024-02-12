@@ -1,10 +1,9 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const workspaceSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Please provide a workspace name"],
-        unique: true,
     },
 
     folders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Folder" }],
@@ -17,4 +16,4 @@ const workspaceSchema = new mongoose.Schema({
 
 const Workspace = mongoose.models.workspace || mongoose.model("workspace", workspaceSchema);
 
-export default Workspace;
+module.exports = mongoose.model("Workspace", workspaceSchema);

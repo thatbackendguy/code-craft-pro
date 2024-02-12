@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios'; // Import axios for making API calls
 import Logo from '../assets/images/pig_logo.png';
+import toast, { Toaster } from "react-hot-toast";
 const OtpVerification = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
@@ -12,8 +13,10 @@ const OtpVerification = () => {
       const userID = localStorage.getItem("userID")
       const data = {
         otp: otpValue,
-        userID }
-        console.log(data);
+        userID 
+      }
+
+      console.log(data);
       try {
         // Make the POST request to your API endpoint
         const response = await axios.post('http://localhost:3000/api/user/otp-verification', data);
@@ -75,12 +78,17 @@ const OtpVerification = () => {
     const isVerified = localStorage.getItem("isVerified")
 
     if(isVerified==="true") {
-      window.location.replace("/login");
+      toast.success("OTP Verified")
+      const timeout = (()=>{
+          window.location.replace("/login");
+      })
+      setTimeout(timeout, 1200)
     }
     
   });
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#020817]">
+      <Toaster/>
         <div className="mb-12">
       <div className="flex w-14 items-center justify-center mb-2 h-14 rounded-full">
           <img src={Logo} alt="logo" className='ml-10' />

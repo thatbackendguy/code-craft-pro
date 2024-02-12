@@ -18,7 +18,7 @@ function generateOTP() {
 
 // signup - create user
 const createUser = asyncHandler(async (req, res) => {
-	
+
 	const newUserData = {
 		name: req.body.name,
 		username: req.body.username,
@@ -35,7 +35,7 @@ const createUser = asyncHandler(async (req, res) => {
 		try {
 			// Insert user into database
 			const newUser = await User.create(newUserData);
-			
+
 			// Email for OTP verification
 			try {
 				const name = newUser.name;
@@ -145,7 +145,7 @@ const loginUser = asyncHandler(async (req, res) => {
 			{ new: true }
 		);
 
-		
+
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			maxAge: 72 * 60 * 60 * 1000,
@@ -177,10 +177,10 @@ const logout = asyncHandler(async (req, res) => {
 			secure: true,
 		});
 		return res.json({
-			message:"Logout Successful!"
+			message: "Logout Successful!"
 		});; // forbidden
 	}
-	await User.findOneAndUpdate({refreshToken}, {
+	await User.findOneAndUpdate({ refreshToken }, {
 		refreshToken: "",
 	});
 	res.clearCookie("refreshToken", {
@@ -188,17 +188,17 @@ const logout = asyncHandler(async (req, res) => {
 		secure: true,
 	});
 	res.json({
-		message:"Logout Successful!"
+		message: "Logout Successful!"
 	}); // forbidden
 });
 
 // otp verification
 const otpVerification = asyncHandler(async (req, res) => {
-	
+
 	try {
 		validateMongoDbId(req.body.userID);
 		const user = await User.findById(req.body.userID)
-		if(user.otp.toString() === req.body.otp.toString()) {
+		if (user.otp.toString() === req.body.otp.toString()) {
 			user.isVerfied = true
 			user.otp = ""
 			const updatedUser = await user.save()
@@ -214,7 +214,7 @@ const otpVerification = asyncHandler(async (req, res) => {
 			})
 		}
 
-	} catch(e) {
+	} catch (e) {
 		res.json({
 			status: "Error",
 			message: e

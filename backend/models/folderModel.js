@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+
+const mongoose = require("mongoose");
 
 const folderSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Please provide a folder name"],
-        unique: true,
     },
 
     files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
@@ -17,4 +17,4 @@ const folderSchema = new mongoose.Schema({
 
 const Folder = mongoose.models.workspace || mongoose.model("folder", folderSchema);
 
-export default Folder;
+module.exports = mongoose.model("Folder", folderSchema);

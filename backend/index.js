@@ -13,6 +13,7 @@ const dbConnect = require('./config/dbConnect');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 const userRoute = require("./routes/userRoute");
+const editorRoute = require("./routes/editorRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/user',userRoute)
+app.use('/api',editorRoute)
 
 app.get('/',(req,res)=>{
     res.json({

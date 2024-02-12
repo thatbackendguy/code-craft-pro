@@ -24,9 +24,12 @@ export default function LoginPage() {
       console.log(response);
       if (response.data.status === "Success") {
         localStorage.setItem("token", response.data?.token);
+        localStorage.setItem("userID",response.data?._id)
+        
         console.log("Login Success", response.data);
         toast.success("Login Success");
-        window.location.replace("/dashboard");
+
+        //window.location.replace("/dashboard");
       } else if (response.data.status === "Error") {
         console.log("Error: ", response.data.message);
         toast.error(response.data.message);

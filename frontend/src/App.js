@@ -4,8 +4,9 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
-import Dashboard from './pages/Dashboard';
+import EditorPage from './pages/EditorPage';
 import OtpVerification from './components/OtpVerification';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   
@@ -18,6 +19,9 @@ function App() {
             <Route path='/' element={<LoginPage/>}></Route>
             <Route path='/signup' element={<SignupPage/>}></Route>
             <Route path='/dashboard' element={<Dashboard/>}></Route>
+            <Route path='/editor/:workspaceID/:folderID/:fileID' element={<EditorPage/>}></Route>
+            <Route path='/editor/:workspaceID/:folderID' element={<EditorPage/>}></Route>
+            <Route path='/editor/:workspaceID' element={<EditorPage/>}></Route>
           </Routes>
         </Router>
     </> 
