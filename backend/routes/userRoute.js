@@ -1,13 +1,14 @@
 const express = require("express");
 const { authMiddleware } = require("../middlewares/authMiddleware");
-const { createUser, loginUser, logout } = require("../controller/userCtrl");
-const {
-	resetPassword,
-	forgotPasswordToken,
-	deleteUser,
-    updateUserPassword,
+const { createUser,
+	loginUser,
+	logout,
 	otpVerification,
-} = require("../controller/userCtrl");
+	// resetPassword,
+	// forgotPasswordToken,
+	// deleteUser,
+    // updateUserPassword,
+	 } = require("../controller/userCtrl");
 
 //initializing router
 const router = express.Router();
@@ -17,10 +18,10 @@ router.post("/signup",createUser);
 router.post("/login",loginUser);
 router.get("/logout",logout);
 router.post("/otp-verification",otpVerification)
-router.put("/reset-password/:token", resetPassword);
-router.delete("/delete", deleteUser);
-router.post("/forgot-password-token", authMiddleware, forgotPasswordToken);
-router.put("/update-password", authMiddleware, updateUserPassword);
+// router.put("/reset-password/:token", resetPassword);
+// router.delete("/delete", deleteUser);
+// router.post("/forgot-password-token", authMiddleware, forgotPasswordToken);
+// router.put("/update-password", authMiddleware, updateUserPassword);
 
 
 
