@@ -14,9 +14,8 @@
 	cd frontend
 	npm install
 	```
-4. Configure .env file in backend
-			4.1 Create `.env` file
-			4.2 Copy and paste the below file into `.env` file and configure accordingly.
+4. Configure .env file in backend. By creating `.env` file
+and copy and paste the below file into `.env` file and configure accordingly.
 	```
 	data of .env file
 	```
