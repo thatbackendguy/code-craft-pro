@@ -1,7 +1,9 @@
 # CodeCraftPro. - Collaborative Coding Enviroment
 ## Project Setup
 1. Open terminal, run
-	`git clone https://github.com/yashpra1010/code-craft-pro`
+	```
+	git clone https://github.com/yashpra1010/code-craft-pro
+	```
 2. Goto backend folder to install backend dependencies.
 	```
 	cd backend
@@ -13,6 +15,8 @@
 	npm install
 	```
 4. Configure .env file in backend
+			4.1 Create `.env` file
+			4.2 Copy and paste the below file into `.env` file and configure accordingly.
 	```
 	data of .env file
 	```
