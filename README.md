@@ -37,5 +37,8 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |2|Add Workspace| POST  |  `/api/workspace/add` |
 |3|Get Workspace|  GET |  `/api/workspace/get/:userID` |
 |4|Delete Workspace|DELETE|`/api/workspace/delete/:id`|
+|5|Add Folder|POST|`/api/folder/add/:workspaceID`|
+|6|Get all the folders of individual workspace|GET|`/api/folder/get-all/:workspaceID`|
+|7|Delete Folder|DELETE|`/api/folder/delete/:folderID`|
 
 > Note: Correctly check the PORT where frontend and backend server is running
