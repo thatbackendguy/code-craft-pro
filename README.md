@@ -17,7 +17,12 @@
 4. Configure .env file in backend. By creating `.env` file
 and copy and paste the below file into `.env` file and configure accordingly.
 	```
-	data of .env file
+	DB_URI=
+	SMTP_EMAIL=
+	SMTP_PASSWORD=
+	JWT_SECRET=
+	SMTP_HOST=
+	AES_SECRET=
 	```
 ## Backend Routes
 #### User Routes
