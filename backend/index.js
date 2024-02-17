@@ -33,7 +33,7 @@ app.use('/api',editorRoute)
 app.get('/',(req,res)=>{
     res.json({
         message: "Welcome to CodeCraftPro APIs",
-        "developed-by":"https://yashpra1010.github.io/"
+        docs: "https://github.com/yashpra1010/code-craft-pro/"
     })
 })
 app.use(notFound);
