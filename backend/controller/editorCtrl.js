@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const Workspace = require("../models/workspaceModel");
 const Folder = require("../models/folderModel");
+const File = require("../models/fileModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 
@@ -212,7 +213,7 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
         } else {
             res.json({
                 status: "Error",
-                message: "No folders found for the workspace."
+                message: "No folders found for this workspace."
             })
         }
     } catch(error) {
@@ -225,6 +226,123 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
     
 })
 
+// Add File - POST
+const addFile = asyncHandler(async (req, res) => {
+    const userID = req.body.userID;
+    const fileName = req.body.name;
+    const workspaceID = req.body.workspaceID;
+    const folderID = req.params.folderID;
+
+    validateMongoDbId(userID);
+    validateMongoDbId(folderID);
+    validateMongoDbId(workspaceID);
+
+    const findFolder = await Folder.findOne({_id: folderID})
+    const findFile = await Folder.findOne({ name: fileName, owner: userID, folder: folderID });
+
+    if (!findFile && findFolder) {
+        try {
+            const newFile = await File.create({
+                name: fileName,
+                owner: userID,
+                folder: folderID,
+                workspace: workspaceID
+            });
+
+            let folder = await Folder.findOneAndUpdate(
+                { _id: folderID },
+                {
+                    $push: { files: newFile._id }
+                },
+                {
+                    new: true
+                }
+            )
+
+            //console.log(folder);
+
+            //console.log(newFile)
+
+            res.json({
+                status: "Success",
+                message: fileName+" file created successfully!"
+            })
+        } catch (error) {
+            console.log(error);
+            res.json({
+                status: "Error",
+                message: error
+            })
+        }
+    }
+})
+
+// Delete File - DELETE
+const deleteFile = asyncHandler(async (req, res) => {
+    const fileID = req.params.fileID
+    
+    validateMongoDbId(fileID);
+
+    try {
+        const deletedFile = await File.findOneAndDelete({ _id: fileID })
+
+        const folder = await Folder.findByIdAndUpdate(
+            { _id: deletedFile.folder },
+            {
+                $pull:
+                {
+                    files: fileID
+                }
+            },
+            {
+                new: true,
+            }
+        )
+
+        res.json({
+            status: "Success",
+            message: deletedFile.name+" file deleted successfully!"
+        })
+    } catch (error) {
+        console.log(error);
+        res.json({
+            status: "Error",
+            message: error
+        })
+    }
+
+})
+
+// Get Files by FolderID
+const getFilesByFolderID = asyncHandler(async (req, res)=> {
+    const folderID = req.params.folderID
+    
+    try {
+        const files = await File.find({folder: folderID})
+
+        if(files != "") {
+            res.json({
+                status: "Success",
+                message: "Files fetched successfully",
+                files
+            })
+        } else {
+            res.json({
+                status: "Error",
+                message: "No files found for this folder."
+            })
+        }
+    } catch(error) {
+        console.log(error);
+        res.json({
+            status: "Error",
+            error
+        })
+    }
+    
+})
+
+
 module.exports = {
     getEditor,
     addWorkspace,
@@ -232,5 +350,8 @@ module.exports = {
     deleteWorkspace,
     getFoldersByWorkspaceID,
     addFolder,
-    deleteFolder
+    deleteFolder,
+    addFile,
+	getFilesByFolderID,
+	deleteFile
 };

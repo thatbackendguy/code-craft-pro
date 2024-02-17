@@ -6,7 +6,7 @@ const fileSchema = new mongoose.Schema({
         required: [true, "Please provide a file name"],
     },
 
-    author: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     folder: { type: mongoose.Schema.Types.ObjectId, ref: "Folder" },
 
