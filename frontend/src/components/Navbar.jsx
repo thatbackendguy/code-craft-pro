@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import Logo from '../assets/images/pig_logo.png';
-
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   const [currentPathname, setCurrentPathname] = useState('');
@@ -66,28 +66,24 @@ export default function Navbar() {
           <div className={`w-full md:block md:w-auto ${isMenuOpen ? 'block' : 'hidden'}`} id="navbar-default">
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               <li>
-                <a
-                  href="/"
-                  className={`block py-2 px-3 lg:w-full w-[24%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] ${
-                    currentPathname === '/' ? 'bg-white text-blue-700 rounded' : 'text-white-900'
-                  } `}
+                <Link
+                  to="/dashboard"
+                  className={`block py-2 px-3 lg:w-full w-[24%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] `}
                 >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/profile"
-                  className={`block py-2 px-3 lg:w-full w-[26%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] ${
-                    currentPathname === '/profile' ? 'bg-white text-blue-700 rounded' : 'text-white-900'
-                  } `}
+                <Link
+                  to="/profile"
+                  className={`block py-2 px-3 lg:w-full w-[26%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] `}
                 >
                   Profile
-                </a>
+                </Link>
               </li>
               <li onClick={logout}>
                 <a
-                  href="/"
+                href="/"
                   className={`block py-2 px-3 lg:w-full w-[26%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] bg-[tomato] rounded`}
                 >
                   Logout

@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.cancel-button-model-workspace:hover {
+    background: tomato !important;
+    color: white !important;
+    border: 1px solid tomato !important;
+}

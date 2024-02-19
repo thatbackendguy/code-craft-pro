@@ -10,54 +10,12 @@ import {
   NotificationOutlined,
 } from "@ant-design/icons";
 
-import { Breadcrumb, Layout, Menu as AntMenu, theme } from "antd";
+import { Breadcrumb, Layout, Menu as AntMenu, theme, Modal, Input, Button } from "antd";
 
 import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { VscNewFolder,VscFolder, VscNewFile } from "react-icons/vsc";
 const { Header, Content, Sider } = Layout;
-
-const fn = async () => {
-  try {
-
-    const response = await fetch("http://localhost:3000/api/editor/123/456/789", {
-      method: "GET",
-    });
-    const res = await response.json()
-    console.log(res);
-  } catch (error) {
-    console.log(error);
-  }
-};
-fn();
-
-const navLinks = [
-  { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
-];
-
-const items1 = navLinks.map(({ name, href }) => ({
-  key: name.toLowerCase(),
-  label: name,
-  href,
-}));
-
-const items2 = [HomeOutlined, HomeOutlined, HomeOutlined].map((icon, index) => {
-  const key = String(index + 1);
-
-  return {
-    key: `sub${key}`,
-    icon: React.createElement(icon),
-    label: `Folder ${key}`,
-
-    children: new Array(4).fill(null).map((_, j) => {
-      const subKey = index * 4 + j + 1;
-      return {
-        key: subKey,
-        label: `File${subKey}`,
-      };
-    }),
-  };
-});
 
 const EditorPage = () => {
   const {
@@ -74,27 +32,176 @@ const EditorPage = () => {
     setCode(editorRef?.current?.getValue());
   };
 
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const parts = currentPath.split("/"); // Split the URL string by "/"
+  const workspaceID = parts[parts.length - 1]; 
+
+  // USE STATES
+  const [data, setData] = useState([]);
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [showAddFolderModal, setShowAddFolderModal] = useState(false);
+  const [showAddFileModal, setShowAddFileModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+});
+const [selectedFolderId, setSelectedFolderId] = useState(null);
+
+  // CODE
+  
+  const getFoldersFromServer = async () => {
+    try {
+      // Access the last segment
+
+      const response = await fetch(
+        `http://localhost:3000/api/folder/get-all/${workspaceID}`,
+        {
+          method: "GET",
+        }
+      );
+      const res = await response.json();
+
+      console.log(res);
+
+      setWorkspaceName(res.workspaceName);
+      setData(res.folders);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleFolderClick = (folderId) => {
+    setSelectedFolderId(folderId);
+  };
+
+  const items2 = data?.map((folder, index) => {
+    const key = `sub${index + 1}`;
+
+    return {
+      key: key,
+      icon: React.createElement(VscFolder), // Assuming you want the same icon for all folders
+      label: (
+        <div onClick={() => handleFolderClick(folder._id)}>{folder.name}</div>
+      ),
+
+      children: folder.files.map((file, j) => {
+        const subKey = index * 4 + j + 1;
+        return {
+          key: subKey,
+          label: file,
+        };
+      }),
+    };
+  });
+
+
+  const handleInputChange = (e) => {
+    setFormData({
+        ...formData,
+        [e.target.id]: e.target.value
+    });
+};
+
+
   // TO RESTRICT UNAUTHENTICATED LOGIN
   useEffect(() => {
+    getFoldersFromServer();
     const token = localStorage.getItem("token");
 
     if (!token) {
       window.location.replace("/login");
     }
-  });
+  }, []);
+
+  const handleAddFolder = () => {
+    setShowAddFolderModal(true);
+  };
+
+  const handleAddFolderSubmit = async() => {
+    //console.log(formData.name, localStorage.getItem("userID"))
+
+    try {
+      
+      const response = await axios.post(
+        `http://localhost:3000/api/folder/add/${workspaceID}`,
+        {
+          'name': formData.name,
+          'userID':localStorage.getItem("userID")}
+      );
+
+
+      if(response?.data?.status==="Success") {
+        getFoldersFromServer();
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+    
+    setShowAddFolderModal(false);
+  };
+
+  const handleAddFile = () => {
+    setShowAddFileModal(true);
+  };
+
+  const handleAddFileSubmit = async() => {
+    
+
+    try {
+      
+      const response = await axios.post(
+        `http://localhost:3000/api/file/add/${selectedFolderId}`,
+        {
+          'name': formData.name,
+          'userID':localStorage.getItem("userID"),
+          'workspaceID': workspaceID
+        }
+      );
+
+
+      if(response?.data?.status==="Success") {
+        getFoldersFromServer();
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+
+    setShowAddFileModal(false);
+  };
 
   return (
     <Layout className="min-h-screen">
       <Navbar />
       <Layout className="pt-5">
-        <Sider width={200} style={{ background: colorBgContainer }}>
-          <AntMenu
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
-            style={{ height: "100%", borderRight: 0 }}
-            items={items2}
-          />
+        <Sider
+          width={200}
+          style={{ background: colorBgContainer }}
+          className="rounded-md"
+        >
+          <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
+                <h1>{workspaceName}</h1>
+                <h1 className="flex items-center">
+                  <VscNewFile onClick={handleAddFile} className="hover:cursor-pointer"/>
+                  <VscNewFolder className="hover:cursor-pointer ml-2" onClick={handleAddFolder} />
+                </h1>
+              </div>
+          {data?.length > 0 ? (
+            <AntMenu
+              mode="inline"
+              defaultSelectedKeys={["1"]}
+              defaultOpenKeys={["sub1"]}
+              style={{ height: "100%", borderRight: 0 }}
+              items={items2}
+            />
+          ) : (
+            <div className="w-full h-full rounded-md">
+              <div className="w-full h-full grid items-center justify-center">
+                <h1>No Folders</h1>
+              </div>
+            </div>
+          )}
         </Sider>
         <Layout style={{ padding: "0 24px 24px" }}>
           <Content
@@ -119,6 +226,38 @@ const EditorPage = () => {
           </Content>
         </Layout>
       </Layout>
+      <Modal
+        title="Add Folder"
+        visible={showAddFolderModal}
+        onCancel={() => setShowAddFolderModal(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setShowAddFolderModal(false)} className="cancel-button-model-workspace">
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleAddFolderSubmit} className="bg-blue-500 text-white">
+            Submit
+          </Button>,
+        ]}
+      >
+        <Input id="name" onChange={handleInputChange} value={formData.name} placeholder="Enter folder name" />
+      </Modal>
+
+      {/* FILE INPUT MODAL */}
+      <Modal
+        title="Add File"
+        visible={showAddFileModal}
+        onCancel={() => setShowAddFileModal(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setShowAddFileModal(false)} className="cancel-button-model-workspace">
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleAddFileSubmit} className="bg-blue-500 text-white">
+            Submit
+          </Button>,
+        ]}
+      >
+        <Input id="name" onChange={handleInputChange} value={formData.name} placeholder="Enter file name" />
+      </Modal>
     </Layout>
   );
 };

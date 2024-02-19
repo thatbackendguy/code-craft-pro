@@ -200,7 +200,9 @@ const deleteFolder = asyncHandler(async (req, res) => {
 // Get Folders by WorkspaceID
 const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
     const workspaceID = req.params.workspaceID
-    
+    const currWorkspace = await Workspace.findById({_id:workspaceID})
+    const workspaceName = currWorkspace.name;
+
     try {
         const folders = await Folder.find({workspace: workspaceID})
 
@@ -208,12 +210,14 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
             res.json({
                 status: "Success",
                 message: "Folders fetched successfully",
-                folders
+                folders,
+                workspaceName
             })
         } else {
             res.json({
                 status: "Error",
-                message: "No folders found for this workspace."
+                message: "No folders found for this workspace.",
+                workspaceName
             })
         }
     } catch(error) {

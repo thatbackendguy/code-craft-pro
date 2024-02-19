@@ -15,7 +15,7 @@ const {
 //initializing router
 const router = express.Router();
 
-router.get("/editor/:workspaceID/:folderID/:fileID", getEditor)
+router.get("/editor/:workspaceID/:folderID/:fileID", getEditor) // TESTING
 
 // APIs for Workspace
 router.post("/workspace/add",addWorkspace)
@@ -27,7 +27,7 @@ router.post("/folder/add/:workspaceID", addFolder)
 router.get("/folder/get-all/:workspaceID", getFoldersByWorkspaceID)
 router.delete("/folder/delete/:folderID", deleteFolder)
 
-// APIs for Workspace
+// APIs for File
 router.post("/file/add/:folderID", addFile)
 router.get("/file/get-all/:folderID", getFilesByFolderID)
 router.delete("/file/delete/:fileID", deleteFile)
