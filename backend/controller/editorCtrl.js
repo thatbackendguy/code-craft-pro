@@ -206,7 +206,7 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
     try {
         const folders = await Folder.find({workspace: workspaceID})
 
-        if(folders != "") {
+        if(folders.length > 0) {
             res.json({
                 status: "Success",
                 message: "Folders fetched successfully",
@@ -236,7 +236,7 @@ const addFile = asyncHandler(async (req, res) => {
     const fileName = req.body.name;
     const workspaceID = req.body.workspaceID;
     const folderID = req.params.folderID;
-
+    
     validateMongoDbId(userID);
     validateMongoDbId(folderID);
     validateMongoDbId(workspaceID);
@@ -250,22 +250,19 @@ const addFile = asyncHandler(async (req, res) => {
                 name: fileName,
                 owner: userID,
                 folder: folderID,
-                workspace: workspaceID
+                workspace: workspaceID,
+                data: "//Write your code here"
             });
 
             let folder = await Folder.findOneAndUpdate(
                 { _id: folderID },
                 {
-                    $push: { files: newFile._id }
+                    $push: { files: {_id: newFile._id, name: fileName } }
                 },
                 {
                     new: true
                 }
             )
-
-            //console.log(folder);
-
-            //console.log(newFile)
 
             res.json({
                 status: "Success",
@@ -295,7 +292,7 @@ const deleteFile = asyncHandler(async (req, res) => {
             {
                 $pull:
                 {
-                    files: fileID
+                    files: {_id:fileID}
                 }
             },
             {
@@ -324,7 +321,7 @@ const getFilesByFolderID = asyncHandler(async (req, res)=> {
     try {
         const files = await File.find({folder: folderID})
 
-        if(files != "") {
+        if(files.length > 0) {
             res.json({
                 status: "Success",
                 message: "Files fetched successfully",
@@ -346,6 +343,59 @@ const getFilesByFolderID = asyncHandler(async (req, res)=> {
     
 })
 
+// Get Files by FolderID
+const getFileByID = asyncHandler(async (req, res)=> {
+    const fileID = req.body.fileID
+
+    console.log(req.body);
+    try {
+        const file = await File.findById({_id: fileID})
+console.log(file);
+        if(file) {
+            res.json({
+                status: "Success",
+                message: "File fetched successfully",
+                file
+            })
+        } else {
+            res.json({
+                status: "Error",
+                message: "No file found."
+            })
+        }
+    } catch(error) {
+        console.log(error);
+        res.json({
+            status: "Error",
+            error
+        })
+    }
+    
+})
+
+// Save code to server
+const saveCode = asyncHandler(async (req,res)=> {
+    const fileID = req.body.fileID;
+    validateMongoDbId(fileID)
+    
+    const data = req.body.data;
+
+    if(data){
+        try{
+        const currFile = await File.findByIdAndUpdate({_id:fileID},{ $set: {
+            data: data
+        }})
+
+        res.json({
+            status: "Success",
+            file: currFile
+        })
+
+        } catch(error) {
+            console.log(error);
+        }
+    }
+})
 
 module.exports = {
     getEditor,
@@ -357,5 +407,7 @@ module.exports = {
     deleteFolder,
     addFile,
 	getFilesByFolderID,
-	deleteFile
+	deleteFile,
+    getFileByID,
+    saveCode
 };

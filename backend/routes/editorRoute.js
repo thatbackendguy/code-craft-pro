@@ -9,7 +9,9 @@ const {
 	deleteFolder,
 	addFile,
 	getFilesByFolderID,
-	deleteFile
+	deleteFile,
+	getFileByID,
+	saveCode
 } = require("../controller/editorCtrl");
 
 //initializing router
@@ -30,7 +32,9 @@ router.delete("/folder/delete/:folderID", deleteFolder)
 // APIs for File
 router.post("/file/add/:folderID", addFile)
 router.get("/file/get-all/:folderID", getFilesByFolderID)
+router.post("/file/get/", getFileByID)
 router.delete("/file/delete/:fileID", deleteFile)
+router.put("/file/save-code/", saveCode)
 
 
 module.exports = router;

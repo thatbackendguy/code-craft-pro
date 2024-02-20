@@ -10,11 +10,20 @@ import {
   NotificationOutlined,
 } from "@ant-design/icons";
 
-import { Breadcrumb, Layout, Menu as AntMenu, theme, Modal, Input, Button } from "antd";
+import {
+  Breadcrumb,
+  Layout,
+  Menu as AntMenu,
+  theme,
+  Modal,
+  Input,
+  Button,
+} from "antd";
 
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import { VscNewFolder,VscFolder, VscNewFile } from "react-icons/vsc";
+import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
+import { IoTrashBinOutline } from "react-icons/io5";
 const { Header, Content, Sider } = Layout;
 
 const EditorPage = () => {
@@ -23,19 +32,17 @@ const EditorPage = () => {
   } = theme.useToken();
   const [code, setCode] = useState("");
   const editorRef = useRef(null);
-  console.log(code);
+  // console.log(code);
   const handledEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
 
-  const getEditorValue = () => {
-    setCode(editorRef?.current?.getValue());
-  };
+  
 
   const location = useLocation();
   const currentPath = location.pathname;
   const parts = currentPath.split("/"); // Split the URL string by "/"
-  const workspaceID = parts[parts.length - 1]; 
+  const workspaceID = parts[parts.length - 1];
 
   // USE STATES
   const [data, setData] = useState([]);
@@ -43,12 +50,13 @@ const EditorPage = () => {
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [showAddFileModal, setShowAddFileModal] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-});
-const [selectedFolderId, setSelectedFolderId] = useState(null);
+    name: "",
+  });
+  const [selectedFolderId, setSelectedFolderId] = useState(null);
+  const [selectedFileId, setSelectedFileId] = useState(null);
+
 
   // CODE
-  
   const getFoldersFromServer = async () => {
     try {
       // Access the last segment
@@ -61,7 +69,7 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
       );
       const res = await response.json();
 
-      console.log(res);
+      // console.log(res);
 
       setWorkspaceName(res.workspaceName);
       setData(res.folders);
@@ -72,6 +80,59 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
 
   const handleFolderClick = (folderId) => {
     setSelectedFolderId(folderId);
+  };
+
+  const handleFileClick = (fileID) => {
+    setSelectedFileId(fileID);
+    getFileData(fileID);
+  };
+
+const getFileData = async(fileID)=> {
+
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/file/get",
+      {"fileID":fileID}
+    );
+  // console.log(response.data.file.data);
+    setCode(res.data.file.data)
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const saveFileData = async() => {
+  try {
+    const res = await axios.put(
+      "http://localhost:3000/api/file/save-code/",
+      {"fileID":selectedFileId, "data": code}
+    );
+
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+  const deleteCurrFile = async (fileID) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/file/delete/${fileID}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const res = await response.json()
+      // console.log(res);
+      
+      
+      if (res.status === "Success") {
+        getFoldersFromServer();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const items2 = data?.map((folder, index) => {
@@ -88,19 +149,32 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
         const subKey = index * 4 + j + 1;
         return {
           key: subKey,
-          label: file,
+          label: (
+            <div className="flex w-full items-center justify-between">
+              <h1 className="flex items-center" onClick={() => handleFileClick(file._id)}>
+                <VscFile className="mr-2" /> {file.name}
+              </h1>
+              <IoTrashBinOutline onClick={() => deleteCurrFile(file._id)} />
+            </div>
+          ),
         };
       }),
     };
   });
 
-
   const handleInputChange = (e) => {
     setFormData({
-        ...formData,
-        [e.target.id]: e.target.value
+      ...formData,
+      [e.target.id]: e.target.value,
     });
-};
+  };
+
+  const getEditorValue = () => {
+    setCode(editorRef?.current?.getValue());
+
+      saveFileData()
+
+  };
 
 
   // TO RESTRICT UNAUTHENTICATED LOGIN
@@ -117,27 +191,25 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
     setShowAddFolderModal(true);
   };
 
-  const handleAddFolderSubmit = async() => {
+  const handleAddFolderSubmit = async () => {
     //console.log(formData.name, localStorage.getItem("userID"))
 
     try {
-      
       const response = await axios.post(
         `http://localhost:3000/api/folder/add/${workspaceID}`,
         {
-          'name': formData.name,
-          'userID':localStorage.getItem("userID")}
+          name: formData.name,
+          userID: localStorage.getItem("userID"),
+        }
       );
 
-
-      if(response?.data?.status==="Success") {
+      if (response?.data?.status === "Success") {
         getFoldersFromServer();
       }
-      
     } catch (error) {
       console.log(error);
     }
-    
+
     setShowAddFolderModal(false);
   };
 
@@ -145,25 +217,20 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
     setShowAddFileModal(true);
   };
 
-  const handleAddFileSubmit = async() => {
-    
-
+  const handleAddFileSubmit = async () => {
     try {
-      
       const response = await axios.post(
         `http://localhost:3000/api/file/add/${selectedFolderId}`,
         {
-          'name': formData.name,
-          'userID':localStorage.getItem("userID"),
-          'workspaceID': workspaceID
+          name: formData.name,
+          userID: localStorage.getItem("userID"),
+          workspaceID: workspaceID,
         }
       );
 
-
-      if(response?.data?.status==="Success") {
+      if (response?.data?.status === "Success") {
         getFoldersFromServer();
       }
-      
     } catch (error) {
       console.log(error);
     }
@@ -181,12 +248,21 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
           className="rounded-md"
         >
           <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
-                <h1>{workspaceName}</h1>
-                <h1 className="flex items-center">
-                  <VscNewFile onClick={handleAddFile} className="hover:cursor-pointer"/>
-                  <VscNewFolder className="hover:cursor-pointer ml-2" onClick={handleAddFolder} />
-                </h1>
-              </div>
+            <h1>{workspaceName}</h1>
+            <h1 className="flex items-center">
+              <button disabled={selectedFolderId===null} className={selectedFolderId===null?`hover:cursor-not-allowed`:`hover:cursor-pointer`}>
+              <VscNewFile
+                onClick={handleAddFile}
+              />
+              </button>
+             
+              <VscNewFolder
+                className={`hover:cursor-pointer ml-2`}
+                onClick={handleAddFolder}
+
+              />
+            </h1>
+          </div>
           {data?.length > 0 ? (
             <AntMenu
               mode="inline"
@@ -212,17 +288,18 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
               borderRadius: borderRadiusLG,
             }}
           >
-            <Editor
+            {code.length>0?<Editor
               height="80vh"
               width="100%"
               theme="vs-dark"
               defaultLanguage="javascript"
               onChange={getEditorValue}
+              value={code}
               onMount={handledEditorDidMount}
               options={{
                 fontSize: "20px",
               }}
-            />
+            />: <h1>Choose a file to start editing</h1>}
           </Content>
         </Layout>
       </Layout>
@@ -231,15 +308,29 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
         visible={showAddFolderModal}
         onCancel={() => setShowAddFolderModal(false)}
         footer={[
-          <Button key="cancel" onClick={() => setShowAddFolderModal(false)} className="cancel-button-model-workspace">
+          <Button
+            key="cancel"
+            onClick={() => setShowAddFolderModal(false)}
+            className="cancel-button-model-workspace"
+          >
             Cancel
           </Button>,
-          <Button key="submit" type="primary" onClick={handleAddFolderSubmit} className="bg-blue-500 text-white">
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleAddFolderSubmit}
+            className="bg-blue-500 text-white"
+          >
             Submit
           </Button>,
         ]}
       >
-        <Input id="name" onChange={handleInputChange} value={formData.name} placeholder="Enter folder name" />
+        <Input
+          id="name"
+          onChange={handleInputChange}
+          value={formData.name}
+          placeholder="Enter folder name"
+        />
       </Modal>
 
       {/* FILE INPUT MODAL */}
@@ -248,15 +339,29 @@ const [selectedFolderId, setSelectedFolderId] = useState(null);
         visible={showAddFileModal}
         onCancel={() => setShowAddFileModal(false)}
         footer={[
-          <Button key="cancel" onClick={() => setShowAddFileModal(false)} className="cancel-button-model-workspace">
+          <Button
+            key="cancel"
+            onClick={() => setShowAddFileModal(false)}
+            className="cancel-button-model-workspace"
+          >
             Cancel
           </Button>,
-          <Button key="submit" type="primary" onClick={handleAddFileSubmit} className="bg-blue-500 text-white">
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleAddFileSubmit}
+            className="bg-blue-500 text-white"
+          >
             Submit
           </Button>,
         ]}
       >
-        <Input id="name" onChange={handleInputChange} value={formData.name} placeholder="Enter file name" />
+        <Input
+          id="name"
+          onChange={handleInputChange}
+          value={formData.name}
+          placeholder="Enter file name"
+        />
       </Modal>
     </Layout>
   );

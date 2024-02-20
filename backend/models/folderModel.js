@@ -7,7 +7,10 @@ const folderSchema = new mongoose.Schema({
         required: [true, "Please provide a folder name"],
     },
 
-    files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+    files: [{ _id: 
+        {type: mongoose.Schema.Types.ObjectId, ref: "File" },
+        name: {type: String}
+    }],
 
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: "Workspace" },
 
