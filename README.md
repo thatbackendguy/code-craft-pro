@@ -49,5 +49,6 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |9|Get all the files of individual folder|GET|`/api/file/get-all/:folderID`|
 |10|Delete File|DELETE|`/api/file/delete/:fileID`|
 |11|Get File|POST|`/api/file/get/`|
+|12|Save code in file|PUT|`/api/file/save-code/`|
 
 > Note: Correctly check the PORT where frontend and backend server is running
