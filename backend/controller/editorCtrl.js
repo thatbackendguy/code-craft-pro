@@ -164,7 +164,7 @@ const addFolder = asyncHandler(async (req, res) => {
 // Delete Folder - DELETE
 const deleteFolder = asyncHandler(async (req, res) => {
     const folderID = req.params.folderID
-    
+
     validateMongoDbId(folderID);
 
     try {
@@ -204,7 +204,7 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
     const workspaceName = currWorkspace.name;
 
     try {
-        const folders = await Folder.find({workspace: workspaceID})
+        const folders = await Folder.find({workspace: workspaceID}).populate("files")
 
         if(folders.length > 0) {
             res.json({
@@ -227,7 +227,7 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
             error
         })
     }
-    
+
 })
 
 // Add File - POST
@@ -236,7 +236,7 @@ const addFile = asyncHandler(async (req, res) => {
     const fileName = req.body.name;
     const workspaceID = req.body.workspaceID;
     const folderID = req.params.folderID;
-    
+
     validateMongoDbId(userID);
     validateMongoDbId(folderID);
     validateMongoDbId(workspaceID);
@@ -257,7 +257,7 @@ const addFile = asyncHandler(async (req, res) => {
             let folder = await Folder.findOneAndUpdate(
                 { _id: folderID },
                 {
-                    $push: { files: {_id: newFile._id, name: fileName } }
+                    $push: { files: newFile._id }
                 },
                 {
                     new: true
@@ -281,7 +281,7 @@ const addFile = asyncHandler(async (req, res) => {
 // Delete File - DELETE
 const deleteFile = asyncHandler(async (req, res) => {
     const fileID = req.params.fileID
-    
+
     validateMongoDbId(fileID);
 
     try {
@@ -317,7 +317,7 @@ const deleteFile = asyncHandler(async (req, res) => {
 // Get Files by FolderID
 const getFilesByFolderID = asyncHandler(async (req, res)=> {
     const folderID = req.params.folderID
-    
+
     try {
         const files = await File.find({folder: folderID})
 
@@ -340,7 +340,7 @@ const getFilesByFolderID = asyncHandler(async (req, res)=> {
             error
         })
     }
-    
+
 })
 
 // Get Files by FolderID
@@ -370,14 +370,14 @@ console.log(file);
             error
         })
     }
-    
+
 })
 
 // Save code to server
 const saveCode = asyncHandler(async (req,res)=> {
     const fileID = req.body.fileID;
     validateMongoDbId(fileID)
-    
+
     const data = req.body.data;
 
     if(data){
