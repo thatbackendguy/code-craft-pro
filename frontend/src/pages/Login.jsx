@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:3000/api/user/login",
+        "https://code-craft-pro.onrender.com/3001/api/user/login",
         user
       );
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
       if (response.data.status === "Success") {
         localStorage.setItem("token", response.data?.token);
         localStorage.setItem("userID",response.data?._id)
-        
+
         console.log("Login Success", response.data);
         toast.success("Login Success");
 
@@ -58,7 +58,7 @@ export default function LoginPage() {
     if(isVerified==="false") {
       window.location.replace("/otp-verification");
     }
-    
+
     if (token) {
       window.location.replace("/dashboard");
     }

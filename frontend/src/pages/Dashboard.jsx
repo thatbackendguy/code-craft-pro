@@ -28,7 +28,7 @@ const Dashboard = () => {
     const id = localStorage.getItem("userID");
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/workspace/add",
+        "https://code-craft-pro.onrender.com/3001/api/workspace/add",
         {
           name: workspaceName,
           userID: id,
@@ -49,7 +49,7 @@ const Dashboard = () => {
     try {
       const userID = localStorage.getItem("userID");
       const response = await fetch(
-        `http://localhost:3000/api/workspace/get/${userID}`,
+        `https://code-craft-pro.onrender.com/3001/api/workspace/get/${userID}`,
         {
           method: "GET",
         }
@@ -65,7 +65,7 @@ const Dashboard = () => {
   const deleteWorkspace = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/workspace/delete/${id}`,
+        `https://code-craft-pro.onrender.com/3001/api/workspace/delete/${id}`,
         {
           method: "DELETE",
         }

@@ -22,7 +22,7 @@ export default function SignupPage() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:3000/api/user/signup",
+        "https://code-craft-pro.onrender.com/3001/api/user/signup",
         user
       );
 
