@@ -5,15 +5,8 @@ import { Editor } from "@monaco-editor/react";
 import Navbar from "../components/Navbar";
 
 import React from "react";
-import {
-  HomeOutlined,
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-} from "@ant-design/icons";
 
 import {
-  Breadcrumb,
   Layout,
   Menu as AntMenu,
   theme,
@@ -26,11 +19,11 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
 import { IoTrashBinOutline } from "react-icons/io5";
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 // for socket.io
 
-const socket = io.connect("http://localhost:3000");
+const socket = io.connect("https://code-craft-pro.onrender.com:3001");
 
 const EditorPage = () => {
   const {
@@ -102,7 +95,7 @@ const getFileData = async(fileID)=> {
 
   try {
     const res = await axios.post(
-      "http://localhost:3000/api/file/get",
+      "https://code-craft-pro.onrender.com:3001/api/file/get",
       {"fileID":fileID}
     );
   // console.log(response.data.file.data);
@@ -116,7 +109,7 @@ const getFileData = async(fileID)=> {
 const saveFileData = async() => {
   try {
     const res = await axios.put(
-      "http://localhost:3000/api/file/save-code/",
+      "https://code-craft-pro.onrender.com:3001/api/file/save-code/",
       {"fileID":selectedFileId, "data": code}
     );
 
