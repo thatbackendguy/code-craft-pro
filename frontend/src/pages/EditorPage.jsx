@@ -67,7 +67,7 @@ const EditorPage = () => {
       // Access the last segment
 
       const response = await fetch(
-        `https://code-craft-pro.onrender.com/3001/api/folder/get-all/${workspaceID}`,
+        `https://code-craft-pro.onrender.com:3001/api/folder/get-all/${workspaceID}`,
         {
           method: "GET",
         }
@@ -129,7 +129,7 @@ const saveFileData = async() => {
   const deleteCurrFile = async (fileID) => {
     try {
       const response = await fetch(
-        `https://code-craft-pro.onrender.com/3001/api/file/delete/${fileID}`,
+        `https://code-craft-pro.onrender.com:3001/api/file/delete/${fileID}`,
         {
           method: "DELETE",
         }
@@ -218,7 +218,7 @@ const saveFileData = async() => {
 
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com/3001/api/folder/add/${workspaceID}`,
+        `https://code-craft-pro.onrender.com:3001/api/folder/add/${workspaceID}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -242,7 +242,7 @@ const saveFileData = async() => {
   const handleAddFileSubmit = async () => {
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com/3001/api/file/add/${selectedFolderId}`,
+        `https://code-craft-pro.onrender.com:3001/api/file/add/${selectedFolderId}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
