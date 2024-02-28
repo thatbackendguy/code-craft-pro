@@ -197,7 +197,10 @@ const EditorPage = () => {
   // useEffect for socket
   useEffect(() => {
     socket.on("receive_user_code", (data) => {
-      alert(data.userCode);
+      // alert(data.userCode);
+      setCode(data.userCode)
+
+
     });
   }, [socket]);
 
