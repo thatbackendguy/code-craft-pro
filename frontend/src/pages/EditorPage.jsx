@@ -23,7 +23,7 @@ const { Content, Sider } = Layout;
 
 // for socket.io
 
-const socket = io.connect("https://code-craft-pro.onrender.com:3001");
+const socket = io.connect("https://code-craft-pro.onrender.com");
 
 const EditorPage = () => {
   const {
@@ -60,7 +60,7 @@ const EditorPage = () => {
       // Access the last segment
 
       const response = await fetch(
-        `https://code-craft-pro.onrender.com:3001/api/folder/get-all/${workspaceID}`,
+        `https://code-craft-pro.onrender.com/api/folder/get-all/${workspaceID}`,
         {
           method: "GET",
         }
@@ -95,7 +95,7 @@ const getFileData = async(fileID)=> {
 
   try {
     const res = await axios.post(
-      "https://code-craft-pro.onrender.com:3001/api/file/get",
+      "https://code-craft-pro.onrender.com/api/file/get",
       {"fileID":fileID}
     );
   // console.log(response.data.file.data);
@@ -109,7 +109,7 @@ const getFileData = async(fileID)=> {
 const saveFileData = async() => {
   try {
     const res = await axios.put(
-      "https://code-craft-pro.onrender.com:3001/api/file/save-code/",
+      "https://code-craft-pro.onrender.com/api/file/save-code/",
       {"fileID":selectedFileId, "data": code}
     );
 
@@ -122,7 +122,7 @@ const saveFileData = async() => {
   const deleteCurrFile = async (fileID) => {
     try {
       const response = await fetch(
-        `https://code-craft-pro.onrender.com:3001/api/file/delete/${fileID}`,
+        `https://code-craft-pro.onrender.com/api/file/delete/${fileID}`,
         {
           method: "DELETE",
         }
@@ -211,7 +211,7 @@ const saveFileData = async() => {
 
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com:3001/api/folder/add/${workspaceID}`,
+        `https://code-craft-pro.onrender.com/api/folder/add/${workspaceID}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -235,7 +235,7 @@ const saveFileData = async() => {
   const handleAddFileSubmit = async () => {
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com:3001/api/file/add/${selectedFolderId}`,
+        `https://code-craft-pro.onrender.com/api/file/add/${selectedFolderId}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),

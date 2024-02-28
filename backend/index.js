@@ -16,7 +16,7 @@ const userRoute = require("./routes/userRoute");
 const editorRoute = require("./routes/editorRoute");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // for CORS
 app.use(helmet())
