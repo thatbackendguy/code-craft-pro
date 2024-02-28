@@ -39,6 +39,32 @@ app.get('/',(req,res)=>{
 app.use(notFound);
 app.use(errorHandler);
 
+// for socket.io
+const http = require("http");
+const { Server } = require("socket.io");
+const { log } = require("console");
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET","POST","PUT","DELETE"],
+    },
+})
+
+io.on("connection", (socket)=> {
+    console.log(`User connected: ${socket.id}`);
+
+    socket.on("join_common_file",(data) => {
+        socket.join(data)
+    })
+
+    socket.on("send_user_code",(data)=>{
+        // console.log(data)
+        socket.to(data.fileID).emit("receive_user_code",data)
+    })
+})
+
 dbConnect().then(()=>{
-    app.listen(PORT, () => console.log('Server is running at port: '+ PORT));
+    server.listen(PORT, () => console.log('Server is running at port: '+ PORT));
 });
