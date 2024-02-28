@@ -56,6 +56,7 @@ io.on("connection", (socket)=> {
     console.log(`User connected: ${socket.id}`);
 
     socket.on("join_common_file",(data) => {
+        // console.log(data);
         socket.join(data)
     })
 
@@ -68,5 +69,3 @@ io.on("connection", (socket)=> {
 dbConnect().then(()=>{
     server.listen(PORT, () => console.log('Server is running at port: '+ PORT));
 });
-
-// for new deployment

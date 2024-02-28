@@ -6,14 +6,7 @@ import Navbar from "../components/Navbar";
 
 import React from "react";
 
-import {
-  Layout,
-  Menu as AntMenu,
-  theme,
-  Modal,
-  Input,
-  Button,
-} from "antd";
+import { Layout, Menu as AntMenu, theme, Modal, Input, Button } from "antd";
 
 import axios from "axios";
 import { useLocation } from "react-router-dom";
@@ -35,8 +28,6 @@ const EditorPage = () => {
   const handledEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
-
-
 
   const location = useLocation();
   const currentPath = location.pathname;
@@ -81,37 +72,35 @@ const EditorPage = () => {
   };
 
   const handleFileClick = (fileID) => {
-
-    if(fileID!=="")
-    {
-      socket.emit("join_common_file",fileID)
+    if (fileID !== "") {
+      console.log(fileID);
+      socket.emit("join_common_file", fileID);
     }
 
     setSelectedFileId(fileID);
     getFileData(fileID);
   };
 
-const getFileData = async(fileID)=> {
+  const getFileData = async (fileID) => {
+    try {
+      const res = await axios.post(
+        "https://code-craft-pro.onrender.com/api/file/get",
+        { fileID: fileID }
+      );
+      // console.log(response.data.file.data);
+      setCode(res.data.file.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  try {
-    const res = await axios.post(
-      "https://code-craft-pro.onrender.com/api/file/get",
-      {"fileID":fileID}
-    );
-  // console.log(response.data.file.data);
-    setCode(res.data.file.data)
-
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-const saveFileData = async() => {
-  try {
-    const res = await axios.put(
-      "https://code-craft-pro.onrender.com/api/file/save-code/",
-      {"fileID":selectedFileId, "data": code}
-    );
+  const saveFileData = async () => {
+    try {
+      socket.emit("send_user_code", { userCode: code, fileID:selectedFileId});
+      const res = await axios.put(
+        "https://code-craft-pro.onrender.com/api/file/save-code/",
+        { fileID: selectedFileId, data: code }
+      );
 
       console.log(res);
     } catch (error) {
@@ -129,7 +118,6 @@ const saveFileData = async() => {
       );
       const res = await response.json();
       // console.log(res);
-
 
       if (res.status === "Success") {
         getFoldersFromServer();
@@ -196,9 +184,7 @@ const saveFileData = async() => {
   useEffect(() => {
     socket.on("receive_user_code", (data) => {
       // alert(data.userCode);
-      setCode(data.userCode)
-
-
+      setCode(data.userCode);
     });
   }, [socket]);
 
