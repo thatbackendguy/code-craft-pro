@@ -347,10 +347,10 @@ const getFilesByFolderID = asyncHandler(async (req, res)=> {
 const getFileByID = asyncHandler(async (req, res)=> {
     const fileID = req.body.fileID
 
-    console.log(req.body);
+    // console.log(req.body);
     try {
         const file = await File.findById({_id: fileID})
-console.log(file);
+// console.log(file);
         if(file) {
             res.json({
                 status: "Success",

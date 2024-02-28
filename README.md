@@ -8,11 +8,13 @@
 	```
 	cd backend
 	npm install
+	npm run dev
 	```
 3. Goto frontend folder to install frontend dependencies.
 	```
 	cd frontend
 	npm install
+	npm start
 	```
 4. Configure .env file in backend. By creating `.env` file
 and copy and paste the below file into `.env` file and configure accordingly.

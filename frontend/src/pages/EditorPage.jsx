@@ -1,3 +1,5 @@
+import io from "socket.io-client";
+
 import { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import Navbar from "../components/Navbar";
@@ -25,6 +27,10 @@ import { useLocation } from "react-router-dom";
 import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
 import { IoTrashBinOutline } from "react-icons/io5";
 const { Header, Content, Sider } = Layout;
+
+// for socket.io
+
+const socket = io.connect("http://localhost:3000");
 
 const EditorPage = () => {
   const {
@@ -55,7 +61,6 @@ const EditorPage = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
 
-
   // CODE
   const getFoldersFromServer = async () => {
     try {
@@ -83,6 +88,12 @@ const EditorPage = () => {
   };
 
   const handleFileClick = (fileID) => {
+
+    if(fileID!=="")
+    {
+      socket.emit("join_common_file",fileID)
+    }
+
     setSelectedFileId(fileID);
     getFileData(fileID);
   };
@@ -91,7 +102,7 @@ const getFileData = async(fileID)=> {
 
   try {
     const res = await axios.post(
-      "https://code-craft-pro.onrender.com/3001/api/file/get",
+      "http://localhost:3000/api/file/get",
       {"fileID":fileID}
     );
   // console.log(response.data.file.data);
@@ -105,15 +116,15 @@ const getFileData = async(fileID)=> {
 const saveFileData = async() => {
   try {
     const res = await axios.put(
-      "https://code-craft-pro.onrender.com/3001/api/file/save-code/",
+      "http://localhost:3000/api/file/save-code/",
       {"fileID":selectedFileId, "data": code}
     );
 
-    console.log(res);
-  } catch (error) {
-    console.log(error);
-  }
-}
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const deleteCurrFile = async (fileID) => {
     try {
@@ -123,7 +134,7 @@ const saveFileData = async() => {
           method: "DELETE",
         }
       );
-      const res = await response.json()
+      const res = await response.json();
       // console.log(res);
 
 
@@ -151,7 +162,10 @@ const saveFileData = async() => {
           key: subKey,
           label: (
             <div className="flex w-full items-center justify-between">
-              <h1 className="flex items-center" onClick={() => handleFileClick(file._id)}>
+              <h1
+                className="flex items-center"
+                onClick={() => handleFileClick(file._id)}
+              >
                 <VscFile className="mr-2" /> {file.name}
               </h1>
               <IoTrashBinOutline onClick={() => deleteCurrFile(file._id)} />
@@ -172,10 +186,8 @@ const saveFileData = async() => {
   const getEditorValue = () => {
     setCode(editorRef?.current?.getValue());
 
-      saveFileData()
-
+    saveFileData();
   };
-
 
   // TO RESTRICT UNAUTHENTICATED LOGIN
   useEffect(() => {
@@ -186,6 +198,16 @@ const saveFileData = async() => {
       window.location.replace("/login");
     }
   }, []);
+
+  // useEffect for socket
+  useEffect(() => {
+    socket.on("receive_user_code", (data) => {
+      // alert(data.userCode);
+      setCode(data.userCode)
+
+
+    });
+  }, [socket]);
 
   const handleAddFolder = () => {
     setShowAddFolderModal(true);
@@ -250,16 +272,20 @@ const saveFileData = async() => {
           <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
             <h1>{workspaceName}</h1>
             <h1 className="flex items-center">
-              <button disabled={selectedFolderId===null} className={selectedFolderId===null?`hover:cursor-not-allowed`:`hover:cursor-pointer`}>
-              <VscNewFile
-                onClick={handleAddFile}
-              />
+              <button
+                disabled={selectedFolderId === null}
+                className={
+                  selectedFolderId === null
+                    ? `hover:cursor-not-allowed`
+                    : `hover:cursor-pointer`
+                }
+              >
+                <VscNewFile onClick={handleAddFile} />
               </button>
 
               <VscNewFolder
                 className={`hover:cursor-pointer ml-2`}
                 onClick={handleAddFolder}
-
               />
             </h1>
           </div>
@@ -288,18 +314,22 @@ const saveFileData = async() => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {code.length>0?<Editor
-              height="80vh"
-              width="100%"
-              theme="vs-dark"
-              defaultLanguage="javascript"
-              onChange={getEditorValue}
-              value={code}
-              onMount={handledEditorDidMount}
-              options={{
-                fontSize: "20px",
-              }}
-            />: <h1>Choose a file to start editing</h1>}
+            {code.length > 0 ? (
+              <Editor
+                height="80vh"
+                width="100%"
+                theme="vs-dark"
+                defaultLanguage="javascript"
+                onChange={getEditorValue}
+                value={code}
+                onMount={handledEditorDidMount}
+                options={{
+                  fontSize: "20px",
+                }}
+              />
+            ) : (
+              <h1>Choose a file to start editing</h1>
+            )}
           </Content>
         </Layout>
       </Layout>
