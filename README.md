@@ -35,6 +35,7 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |2|Login| POST  |  `/api/user/login` |
 |3|Logout|  GET |  `/api/user/logout` |
 |4|OTP Verification|POST|`/api/user/otp-verification`|
+5|Get User Metrics Data|GET|`/api/user/profile/:userID`|
 
 #### Editor Routes
 
