@@ -8,6 +8,7 @@ const { createUser,
 	// forgotPasswordToken,
 	// deleteUser,
     // updateUserPassword,
+	getUserProfile
 	 } = require("../controller/userCtrl");
 
 //initializing router
@@ -18,10 +19,7 @@ router.post("/signup",createUser);
 router.post("/login",loginUser);
 router.get("/logout",logout);
 router.post("/otp-verification",otpVerification)
-// router.put("/reset-password/:token", resetPassword);
-// router.delete("/delete", deleteUser);
-// router.post("/forgot-password-token", authMiddleware, forgotPasswordToken);
-// router.put("/update-password", authMiddleware, updateUserPassword);
+router.get("/profile/:userID",getUserProfile)
 
 
 

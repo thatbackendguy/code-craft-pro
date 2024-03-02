@@ -2,16 +2,15 @@ const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 const { generateRefreshToken } = require("../config/refreshToken");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-
-
-const CryptoJS = require("crypto-js");
-
-const User = require("../models/userModel");
-
 const { sendEmail } = require("./emailCtrl");
 
+// importing models
+const User = require("../models/userModel");
+const Workspace = require("../models/workspaceModel");
+const Folder = require("../models/folderModel");
+const File = require("../models/fileModel");
+
+// function to generate OTPs
 function generateOTP() {
 	return Math.floor(100000 + Math.random() * 900000);
 }
@@ -223,149 +222,60 @@ const otpVerification = asyncHandler(async (req, res) => {
 
 })
 
-// update password
-const updateUserPassword = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	const { password } = req.body;
-	validateMongoDbId(_id);
-	const user = await User.findById(_id);
-	if (password) {
-		user.password = password;
-		const updatedPassword = await user.save();
-		res.json(updatedPassword);
-	} else {
-		res.json(user);
-	}
-});
 
-const forgotPasswordToken = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	validateMongoDbId(_id);
-	const user = await User.findById(_id);
-	if (!user) {
-		throw new Error("User not found with this email");
-	} else {
-		try {
-			const name = user.firstname + user.lastname;
-			const token = await user.createPasswordResetToken();
-			await user.save();
-			const resetURL = `Hi ${name}, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:5000/api/user/reset-password/${token}'>Click Here</>`;
-			const data = {
-				to: email,
-				text: `Hey ${name}`,
-				subject: "Reset Password Link",
-				htm: resetURL,
-			};
-			sendEmail(data);
-			res.json(token);
-		} catch (error) {
-			throw new Error(error);
-		}
-	}
-});
+// get user profile details
+const getUserProfile = asyncHandler(async (req, res) => {
+	var totalLoc = null;
 
-const resetPassword = asyncHandler(async (req, res) => {
-	const { password } = req.body;
-	const { token } = req.params;
-	const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-	const user = await User.findOne({
-		passwordResetToken: hashedToken,
-		passwordResetExpires: { $gt: Date.now() },
-	});
-	if (!user) throw new Error(" Token Expired, Please try again later");
-	user.password = password;
-	user.passwordResetToken = undefined;
-	user.passwordResetExpires = undefined;
-	await user.save();
-	res.json(user);
-});
+	const userID = req.params.userID;
 
-const deleteUser = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
-	const findUser = await User.findOne({ email });
-	if (findUser && (await findUser.isPasswordMatched(password))) {
-		const deletedUser = await User.findByIdAndDelete(findUser._id);
-		res.json({
-			message: `${deletedUser.firstname} deleted successfully!`,
-		});
-	} else {
-		res.json({
-			message: "Invalid credentials! OR User doesn't exists!",
-		});
-	}
-});
-
-// adding password
-const addPassword = asyncHandler(async (req, res) => {
-	const { name, email, password } = req.body;
-	const { _id } = req.user;
-	validateMongoDbId(_id);
-
-	const findPass = await Password.findOne({ name, email, owner: _id });
-	if (findPass)
-		throw new Error(
-			"Password already exists! Kindly navigate to update password."
-		);
-	const newPass = await Password.create({
-		name: name,
-		email: email,
-		password: CryptoJS.AES.encrypt(password, process.env.AES_SECRET).toString(),
-		owner: _id,
-	});
-	let user = await User.findByIdAndUpdate(
-		_id,
-		{
-			$push: { user_passwords: newPass._id },
-		},
-		{
-			new: true,
-		}
-	);
-	res.json(newPass);
-});
-
-const getUserPasswords = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	validateMongoDbId(_id);
-	const userPasswords = await User.findById(_id)
-		.select("user_passwords")
-		.populate("user_passwords");
-	res.json(userPasswords);
-});
-
-const deletePassword = asyncHandler(async (req, res) => {
-	const { _id } = req.user;
-	const { id } = req.params;
-	validateMongoDbId(_id);
+	validateMongoDbId(userID);
 	try {
-		const pass = await Password.findByIdAndDelete(id);
-		let user = await User.findByIdAndUpdate(
-			_id,
-			{
-				$pull: { user_passwords: pass._id },
-			},
-			{
-				new: true,
-			}
-		);
-		res.json({
-			message: "Password deleted successfully!",
-		});
+
+		// const workspaces = await Workspace.find({ owner: userID }).populate("folders")
+
+		// workspaces.forEach(w=>{
+		// 	w.folders.forEach(folder => {
+		// 		folder.files.forEach(async file=>
+		// 			{
+		// 				const currFile = await File.findById(file);
+		// 				console.log(currFile.data)
+		// 			})
+		// 	})
+		// })
+
+		const workspaceCount = await Workspace.countDocuments({ owner: userID })
+		const folderCount = await Folder.countDocuments({ owner: userID })
+
+		const files = await File.find({ owner: userID })
+		const fileCount = files.length;
+		if (fileCount > 0) {
+			files.forEach(f => {
+				totalLoc += (f.data?.split("\n")).length;
+			})
+		}
+
+		res.json({ 
+			status:"success",
+			userID,
+			// workspaces
+			workspaceCount,
+			folderCount, 
+			fileCount, 
+			totalLoc, 
+		})
 	} catch (error) {
-		throw new Error(error);
+		res.json({
+			status: "error",
+			message: error
+		})
 	}
-});
+})
 
 module.exports = {
 	createUser,
 	loginUser,
 	logout,
-	updateUserPassword,
-	forgotPasswordToken,
-	resetPassword,
-	deleteUser,
-	addPassword,
-	getUserPasswords,
-	deletePassword,
-	otpVerification
+	otpVerification,
+	getUserProfile
 };
