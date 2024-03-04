@@ -1,4 +1,14 @@
 # CodeCraftPro. - Collaborative Coding Enviroment
+> Recommended to use Node v20.0 or higher
+Check your Node version by
+```
+node -v
+```
+For installing latest Node version for Ubuntu (snap)
+```
+sudo snap install node --classic
+```
+
 ## Project Setup
 1. Open terminal, run
 	```
