@@ -244,6 +244,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 		// 	})
 		// })
 
+		const currUser = await User.findById(userID, {username:1, name:1,email:1,mobile:1,_id:0});
 		const workspaceCount = await Workspace.countDocuments({ owner: userID })
 		const folderCount = await Folder.countDocuments({ owner: userID })
 
@@ -257,7 +258,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 		res.json({ 
 			status:"success",
-			userID,
+			"user": currUser,
 			// workspaces
 			workspaceCount,
 			folderCount, 
