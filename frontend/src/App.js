@@ -7,6 +7,7 @@ import SignupPage from './pages/Signup';
 import EditorPage from './pages/EditorPage';
 import OtpVerification from './components/OtpVerification';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 
 function App() {
   
@@ -19,6 +20,7 @@ function App() {
             <Route path='/' element={<LoginPage/>}></Route>
             <Route path='/signup' element={<SignupPage/>}></Route>
             <Route path='/dashboard' element={<Dashboard/>}></Route>
+            <Route path='/profile' element={<Profile/>}></Route>
             <Route path='/editor/:workspaceID/:folderID/:fileID' element={<EditorPage/>}></Route>
             <Route path='/editor/:workspaceID/:folderID' element={<EditorPage/>}></Route>
             <Route path='/editor/:workspaceID' element={<EditorPage/>}></Route>
