@@ -1,7 +1,9 @@
-const User = require("../models/userModel");
-const Workspace = require("../models/workspaceModel");
-const Folder = require("../models/folderModel");
-const File = require("../models/fileModel");
+const {
+    User,
+    Workspace,
+    Folder,
+    File
+} = require("../models");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 
@@ -197,7 +199,7 @@ const deleteFolder = asyncHandler(async (req, res) => {
 
 })
 
-// Get Folders by WorkspaceID
+// Get Folders by WorkspaceID - GET
 const getFoldersByWorkspaceID = asyncHandler(async (req, res)=> {
     const workspaceID = req.params.workspaceID
     const currWorkspace = await Workspace.findById({_id:workspaceID})
@@ -373,7 +375,7 @@ const getFileByID = asyncHandler(async (req, res)=> {
 
 })
 
-// Save code to server
+// Save code to server - PUT
 const saveCode = asyncHandler(async (req,res)=> {
     const fileID = req.body.fileID;
     validateMongoDbId(fileID)
@@ -397,6 +399,190 @@ const saveCode = asyncHandler(async (req,res)=> {
     }
 })
 
+// add collaborator to workspace - POST
+const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
+    try {
+        const ownerUserID = req.body.ownerUserID;
+        const guestUserID = req.body.guestUserID;
+        const workspaceID = req.params.workspaceID;
+
+        validateMongoDbId(ownerUserID);
+        validateMongoDbId(guestUserID);
+        validateMongoDbId(workspaceID);
+
+        const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
+
+        if (!workspace) {
+            return res.status(404).json({
+                status: 1,
+                message: "Workspace not found or you don't have permission to share this workspace."
+            });
+        }
+
+        if (workspace.sharedWith.includes(guestUserID)) {
+            return res.status(400).json({
+                status: 1,
+                message: "User is already a collaborator in this workspace."
+            });
+        }
+
+        workspace.sharedWith.addToSet(guestUserID);
+        const updatedWorkspace = await workspace.save();
+
+        res.json({
+            status: 0,
+            message: "Workspace shared successfully!",
+            updatedWorkspace
+        });
+    } catch (error) {
+        console.error("Error occurred while sharing workspace:", error);
+        res.status(500).json({
+            status: 1,
+            message: "Unable to share the workspace with the user!",
+            error: error.message // Send error message for debugging purposes
+        });
+    }
+});
+
+
+// remove collaborator from workspace - DELETE
+const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
+    try {
+        const ownerUserID = req.body.ownerUserID;
+        const guestUserID = req.body.guestUserID;
+        const workspaceID = req.params.workspaceID;
+
+        validateMongoDbId(ownerUserID);
+        validateMongoDbId(guestUserID);
+        validateMongoDbId(workspaceID);
+
+        const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
+
+        if (!workspace) {
+            return res.status(404).json({
+                status: 1,
+                message: "Workspace not found or you don't have permission to remove collaborators from this workspace."
+            });
+        }
+
+        const index = workspace.sharedWith.indexOf(guestUserID);
+        if (index !== -1) {
+            workspace.sharedWith.splice(index, 1);
+            const updatedWorkspace = await workspace.save();
+            return res.json({
+                status: 0,
+                message: "Collaborator removed successfully!",
+                updatedWorkspace
+            });
+        } else {
+            return res.status(404).json({
+                status: 1,
+                message: "The user is not a collaborator in this workspace."
+            });
+        }
+    } catch (error) {
+        console.error("Error occurred while removing collaborator from workspace:", error);
+        res.status(500).json({
+            status: 1,
+            message: "Unable to remove the collaborator from the workspace!",
+            error: error.message // Send error message for debugging purposes
+        });
+    }
+});
+
+// add collaborator to folder - POST
+const addCollaboratorToFolder = asyncHandler(async (req, res) => {
+    try {
+        const ownerUserID = req.body.ownerUserID;
+        const guestUserID = req.body.guestUserID;
+        const folderID = req.params.folderID;
+
+        validateMongoDbId(ownerUserID);
+        validateMongoDbId(guestUserID);
+        validateMongoDbId(folderID);
+
+        const folder = await Folder.findOne({ _id: folderID, owner: ownerUserID });
+
+        if (!folder) {
+            return res.status(404).json({
+                status: 1,
+                message: "Folder not found or you don't have permission to share this folder."
+            });
+        }
+
+        if (folder.sharedWith.includes(guestUserID)) {
+            return res.status(400).json({
+                status: 1,
+                message: "User is already a collaborator in this folder."
+            });
+        }
+
+        folder.sharedWith.addToSet(guestUserID);
+        const updatedFolder = await folder.save();
+
+        res.json({
+            status: 0,
+            message: "Folder shared successfully!",
+            updatedFolder
+        });
+    } catch (error) {
+        console.error("Error occurred while sharing folder:", error);
+        res.status(500).json({
+            status: 1,
+            message: "Unable to share the folder with the user!",
+            error: error.message // Send error message for debugging purposes
+        });
+    }
+});
+
+
+// remove collaborator from folder - DELETE
+const removeCollaboratorFromFolder = asyncHandler(async (req, res) => {
+    try {
+        const ownerUserID = req.body.ownerUserID;
+        const guestUserID = req.body.guestUserID;
+        const folderID = req.params.folderID;
+
+        validateMongoDbId(ownerUserID);
+        validateMongoDbId(guestUserID);
+        validateMongoDbId(folderID);
+
+        const folder = await Folder.findOne({ _id: folderID, owner: ownerUserID });
+
+        if (!folder) {
+            return res.status(404).json({
+                status: 1,
+                message: "Folder not found or you don't have permission to remove collaborators from this folder."
+            });
+        }
+
+        const index = folder.sharedWith.indexOf(guestUserID);
+        if (index !== -1) {
+            folder.sharedWith.splice(index, 1);
+            const updatedFolder = await folder.save();
+            return res.json({
+                status: 0,
+                message: "Collaborator removed successfully!",
+                updatedFolder
+            });
+        } else {
+            return res.status(404).json({
+                status: 1,
+                message: "The user is not a collaborator in this folder."
+            });
+        }
+    } catch (error) {
+        console.error("Error occurred while removing collaborator from folder:", error);
+        res.status(500).json({
+            status: 1,
+            message: "Unable to remove the collaborator from the folder!",
+            error: error.message // Send error message for debugging purposes
+        });
+    }
+});
+
+
+
 module.exports = {
     getEditor,
     addWorkspace,
@@ -409,5 +595,9 @@ module.exports = {
 	getFilesByFolderID,
 	deleteFile,
     getFileByID,
-    saveCode
+    saveCode,
+    addCollaboratorToWorkspace,
+    removeCollaboratorFromWorkspace,
+    addCollaboratorToFolder,
+    removeCollaboratorFromFolder
 };

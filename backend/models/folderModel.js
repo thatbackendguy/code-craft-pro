@@ -17,6 +17,4 @@ const folderSchema = new mongoose.Schema({
 
 },{ timestamps: true })
 
-// const Folder = mongoose.models.workspace || mongoose.model("folder", folderSchema);
-
 module.exports = mongoose.model("Folder", folderSchema);

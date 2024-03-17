@@ -55,13 +55,17 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |2|Add Workspace| POST  |  `/api/workspace/add` |
 |3|Get Workspace|  GET |  `/api/workspace/get/:userID` |
 |4|Delete Workspace|DELETE|`/api/workspace/delete/:id`|
-|5|Add Folder|POST|`/api/folder/add/:workspaceID`|
-|6|Get all the folders of individual workspace|GET|`/api/folder/get-all/:workspaceID`|
-|7|Delete Folder|DELETE|`/api/folder/delete/:folderID`|
-|8|Add File|POST|`/api/file/add/:folderID`|
-|9|Get all the files of individual folder|GET|`/api/file/get-all/:folderID`|
-|10|Delete File|DELETE|`/api/file/delete/:fileID`|
-|11|Get File|POST|`/api/file/get/`|
-|12|Save code in file|PUT|`/api/file/save-code/`|
+|5|Share Workspace|POST|`/api/workspace/share/:workspaceID`|
+|6|Remove shared workspace|DELETE|`/api/workspace/share/:workspaceID`|
+|7|Add Folder|POST|`/api/folder/add/:workspaceID`|
+|8|Get all the folders of individual workspace|GET|`/api/folder/get-all/:workspaceID`|
+|9|Delete Folder|DELETE|`/api/folder/delete/:folderID`|
+|10|Share folder|POST|`/api/folder/share/:folderID`|
+|11|Remove shared folder|DELETE|`/api/folder/share/:folderID`|
+|12|Add File|POST|`/api/file/add/:folderID`|
+|13|Get all the files of individual folder|GET|`/api/file/get-all/:folderID`|
+|14|Delete File|DELETE|`/api/file/delete/:fileID`|
+|15|Get File|POST|`/api/file/get/`|
+|16|Save code in file|PUT|`/api/file/save-code/`|
 
 > Note: Correctly check the PORT where frontend and backend server is running
