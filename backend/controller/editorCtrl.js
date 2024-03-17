@@ -1,9 +1,7 @@
-const {
-    User,
-    Workspace,
-    Folder,
-    File
-} = require("../models");
+const User = require("../models/userModel");
+const Workspace = require("../models/workspaceModel");
+const Folder = require("../models/folderModel");
+const File = require("../models/fileModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 
