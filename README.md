@@ -70,6 +70,6 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |17|Add Collaborator to Workspace|POST|`/api/workspace/share/:workspaceID`|
 |18|Remove Collaborator from Workspace|DELETE|`/api/workspace/share/:workspaceID`|
 |19|Add Collaborator to Folder|POST|`/api/folder/share/:folderID`|
-|18|Remove Collaborator from Folder|DELETE|`/api/folder/share/:folderID`|
+|20|Remove Collaborator from Folder|DELETE|`/api/folder/share/:folderID`|
 
 > Note: Correctly check the PORT where frontend and backend server is running
