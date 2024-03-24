@@ -401,11 +401,10 @@ const saveCode = asyncHandler(async (req,res)=> {
 const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     try {
         const ownerUserID = req.body.ownerUserID;
-        const guestUserID = req.body.guestUserID;
+        const guestEmailID = req.body.guestEmailID;
         const workspaceID = req.params.workspaceID;
 
         validateMongoDbId(ownerUserID);
-        validateMongoDbId(guestUserID);
         validateMongoDbId(workspaceID);
 
         const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
@@ -417,6 +416,17 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
             });
         }
 
+        const guestUser = await User.findOne({ email: guestEmailID });
+
+        if (!guestUser) {
+            return res.status(404).json({
+                status: 1,
+                message: "Guest user not found."
+            });
+        }
+
+        const guestUserID = guestUser._id;
+
         if (workspace.sharedWith.includes(guestUserID)) {
             return res.status(400).json({
                 status: 1,
@@ -424,8 +434,18 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
             });
         }
 
-        workspace.sharedWith.addToSet(guestUserID);
-        const updatedWorkspace = await workspace.save();
+        const updatedWorkspace = await Workspace.findOneAndUpdate(
+            { _id: workspaceID, owner: ownerUserID },
+            { $addToSet: { sharedWith: guestUserID } },
+            { new: true }
+        );
+
+        if (!updatedWorkspace) {
+            return res.status(500).json({
+                status: 1,
+                message: "Unable to share the workspace with the user!"
+            });
+        }
 
         res.json({
             status: 0,
@@ -442,61 +462,14 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     }
 });
 
-
-// remove collaborator from workspace - DELETE
-const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
-    try {
-        const ownerUserID = req.body.ownerUserID;
-        const guestUserID = req.body.guestUserID;
-        const workspaceID = req.params.workspaceID;
-
-        validateMongoDbId(ownerUserID);
-        validateMongoDbId(guestUserID);
-        validateMongoDbId(workspaceID);
-
-        const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
-
-        if (!workspace) {
-            return res.status(404).json({
-                status: 1,
-                message: "Workspace not found or you don't have permission to remove collaborators from this workspace."
-            });
-        }
-
-        const index = workspace.sharedWith.indexOf(guestUserID);
-        if (index !== -1) {
-            workspace.sharedWith.splice(index, 1);
-            const updatedWorkspace = await workspace.save();
-            return res.json({
-                status: 0,
-                message: "Collaborator removed successfully!",
-                updatedWorkspace
-            });
-        } else {
-            return res.status(404).json({
-                status: 1,
-                message: "The user is not a collaborator in this workspace."
-            });
-        }
-    } catch (error) {
-        console.error("Error occurred while removing collaborator from workspace:", error);
-        res.status(500).json({
-            status: 1,
-            message: "Unable to remove the collaborator from the workspace!",
-            error: error.message // Send error message for debugging purposes
-        });
-    }
-});
-
 // add collaborator to folder - POST
 const addCollaboratorToFolder = asyncHandler(async (req, res) => {
     try {
         const ownerUserID = req.body.ownerUserID;
-        const guestUserID = req.body.guestUserID;
+        const guestEmailID = req.body.guestEmailID;
         const folderID = req.params.folderID;
 
         validateMongoDbId(ownerUserID);
-        validateMongoDbId(guestUserID);
         validateMongoDbId(folderID);
 
         const folder = await Folder.findOne({ _id: folderID, owner: ownerUserID });
@@ -508,6 +481,17 @@ const addCollaboratorToFolder = asyncHandler(async (req, res) => {
             });
         }
 
+        const guestUser = await User.findOne({ email: guestEmailID });
+
+        if (!guestUser) {
+            return res.status(404).json({
+                status: 1,
+                message: "Guest user not found."
+            });
+        }
+
+        const guestUserID = guestUser._id;
+
         if (folder.sharedWith.includes(guestUserID)) {
             return res.status(400).json({
                 status: 1,
@@ -515,8 +499,18 @@ const addCollaboratorToFolder = asyncHandler(async (req, res) => {
             });
         }
 
-        folder.sharedWith.addToSet(guestUserID);
-        const updatedFolder = await folder.save();
+        const updatedFolder = await Folder.findOneAndUpdate(
+            { _id: folderID, owner: ownerUserID },
+            { $addToSet: { sharedWith: guestUserID } },
+            { new: true }
+        );
+
+        if (!updatedFolder) {
+            return res.status(500).json({
+                status: 1,
+                message: "Unable to share the folder with the user!"
+            });
+        }
 
         res.json({
             status: 0,
@@ -533,16 +527,14 @@ const addCollaboratorToFolder = asyncHandler(async (req, res) => {
     }
 });
 
-
 // remove collaborator from folder - DELETE
 const removeCollaboratorFromFolder = asyncHandler(async (req, res) => {
     try {
         const ownerUserID = req.body.ownerUserID;
-        const guestUserID = req.body.guestUserID;
+        const guestEmailID = req.body.guestEmailID;
         const folderID = req.params.folderID;
 
         validateMongoDbId(ownerUserID);
-        validateMongoDbId(guestUserID);
         validateMongoDbId(folderID);
 
         const folder = await Folder.findOne({ _id: folderID, owner: ownerUserID });
@@ -554,21 +546,35 @@ const removeCollaboratorFromFolder = asyncHandler(async (req, res) => {
             });
         }
 
-        const index = folder.sharedWith.indexOf(guestUserID);
-        if (index !== -1) {
-            folder.sharedWith.splice(index, 1);
-            const updatedFolder = await folder.save();
-            return res.json({
-                status: 0,
-                message: "Collaborator removed successfully!",
-                updatedFolder
+        const guestUser = await User.findOne({ email: guestEmailID });
+
+        if (!guestUser) {
+            return res.status(404).json({
+                status: 1,
+                message: "Guest user not found."
             });
-        } else {
+        }
+
+        const guestUserID = guestUser._id;
+
+        const updatedFolder = await Folder.findOneAndUpdate(
+            { _id: folderID, owner: ownerUserID, sharedWith: guestUserID },
+            { $pull: { sharedWith: guestUserID } },
+            { new: true }
+        );
+
+        if (!updatedFolder) {
             return res.status(404).json({
                 status: 1,
                 message: "The user is not a collaborator in this folder."
             });
         }
+
+        return res.json({
+            status: 0,
+            message: "Collaborator removed successfully!",
+            updatedFolder
+        });
     } catch (error) {
         console.error("Error occurred while removing collaborator from folder:", error);
         res.status(500).json({
@@ -579,7 +585,63 @@ const removeCollaboratorFromFolder = asyncHandler(async (req, res) => {
     }
 });
 
+// remove collaborator from workspace - DELETE
+const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
+    try {
+        const ownerUserID = req.body.ownerUserID;
+        const guestEmailID = req.body.guestEmailID;
+        const workspaceID = req.params.workspaceID;
 
+        validateMongoDbId(ownerUserID);
+        validateMongoDbId(workspaceID);
+
+        const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
+
+        if (!workspace) {
+            return res.status(404).json({
+                status: 1,
+                message: "Workspace not found or you don't have permission to remove collaborators from this workspace."
+            });
+        }
+
+        const guestUser = await User.findOne({ email: guestEmailID });
+
+        if (!guestUser) {
+            return res.status(404).json({
+                status: 1,
+                message: "Guest user not found."
+            });
+        }
+
+        const guestUserID = guestUser._id;
+
+        const updatedWorkspace = await Workspace.findOneAndUpdate(
+            { _id: workspaceID, owner: ownerUserID, sharedWith: guestUserID },
+            { $pull: { sharedWith: guestUserID } },
+            { new: true }
+        );
+
+        if (!updatedWorkspace) {
+            return res.status(404).json({
+                status: 1,
+                message: "The user is not a collaborator in this workspace."
+            });
+        }
+
+        return res.json({
+            status: 0,
+            message: "Collaborator removed successfully!",
+            updatedWorkspace
+        });
+    } catch (error) {
+        console.error("Error occurred while removing collaborator from workspace:", error);
+        res.status(500).json({
+            status: 1,
+            message: "Unable to remove the collaborator from the workspace!",
+            error: error.message // Send error message for debugging purposes
+        });
+    }
+});
 
 module.exports = {
     getEditor,
