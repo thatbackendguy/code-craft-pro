@@ -15,8 +15,8 @@ import { IoTrashBinOutline } from "react-icons/io5";
 const { Content, Sider } = Layout;
 
 // for socket.io
-
-const socket = io.connect("https://code-craft-pro.onrender.com");
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const socket = io.connect(BACKEND_URL);
 
 const EditorPage = () => {
   const {
@@ -44,21 +44,19 @@ const EditorPage = () => {
   });
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
+  const [authenticated, setIsAuthenticated] = useState(false);
 
   // CODE
   const getFoldersFromServer = async () => {
     try {
       // Access the last segment
-
       const response = await fetch(
-        `https://code-craft-pro.onrender.com/api/folder/get-all/${workspaceID}`,
+        BACKEND_URL+`/api/folder/get-all/${workspaceID}`,
         {
           method: "GET",
         }
       );
       const res = await response.json();
-
-      // console.log(res);
 
       setWorkspaceName(res.workspaceName);
       setData(res.folders);
@@ -83,11 +81,10 @@ const EditorPage = () => {
 
   const getFileData = async (fileID) => {
     try {
-      const res = await axios.post(
-        "https://code-craft-pro.onrender.com/api/file/get",
-        { fileID: fileID }
-      );
-      // console.log(response.data.file.data);
+      const res = await axios.post(BACKEND_URL+"/api/file/get", {
+        fileID: fileID,
+      });
+
       setCode(res.data.file.data);
     } catch (error) {
       console.log(error);
@@ -96,11 +93,11 @@ const EditorPage = () => {
 
   const saveFileData = async () => {
     try {
-      socket.emit("send_user_code", { userCode: code, fileID:selectedFileId});
-      const res = await axios.put(
-        "https://code-craft-pro.onrender.com/api/file/save-code/",
-        { fileID: selectedFileId, data: code }
-      );
+      socket.emit("send_user_code", { userCode: code, fileID: selectedFileId });
+      const res = await axios.put(BACKEND_URL+"/api/file/save-code/", {
+        fileID: selectedFileId,
+        data: code,
+      });
 
       console.log(res);
     } catch (error) {
@@ -111,7 +108,7 @@ const EditorPage = () => {
   const deleteCurrFile = async (fileID) => {
     try {
       const response = await fetch(
-        `https://code-craft-pro.onrender.com/api/file/delete/${fileID}`,
+        BACKEND_URL+`/api/file/delete/${fileID}`,
         {
           method: "DELETE",
         }
@@ -170,6 +167,37 @@ const EditorPage = () => {
     saveFileData();
   };
 
+  const getSharedWorkspaces = async () => {
+    try {
+      const response = await fetch(
+        BACKEND_URL+`/api/workspace/share/${workspaceID}`,
+        {
+          method: "GET",
+        }
+      );
+      const res = await response.json();
+      const userID = localStorage.getItem("userID");
+
+      const isOwner = res.workspace.owner === userID;
+
+      console.log(`${res.workspace.owner} === ${userID}`, isOwner);
+
+      if (!isOwner) {
+        const isAuthenticated =
+          res?.workspace?.sharedWith?.filter((item) => item._id === userID)
+            .length > 0;
+
+        if (isAuthenticated) {
+          setIsAuthenticated(true);
+        }
+      } else {
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // TO RESTRICT UNAUTHENTICATED LOGIN
   useEffect(() => {
     getFoldersFromServer();
@@ -178,6 +206,10 @@ const EditorPage = () => {
     if (!token) {
       window.location.replace("/login");
     }
+  }, []);
+
+  useEffect(() => {
+    getSharedWorkspaces();
   }, []);
 
   // useEffect for socket
@@ -197,7 +229,7 @@ const EditorPage = () => {
 
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com/api/folder/add/${workspaceID}`,
+        BACKEND_URL+`/api/folder/add/${workspaceID}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -221,7 +253,7 @@ const EditorPage = () => {
   const handleAddFileSubmit = async () => {
     try {
       const response = await axios.post(
-        `https://code-craft-pro.onrender.com/api/file/add/${selectedFolderId}`,
+        BACKEND_URL+`/api/file/add/${selectedFolderId}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -242,76 +274,83 @@ const EditorPage = () => {
   return (
     <Layout className="min-h-screen">
       <Navbar />
-      <Layout className="pt-5">
-        <Sider
-          width={200}
-          style={{ background: colorBgContainer }}
-          className="rounded-md"
-        >
-          <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
-            <h1>{workspaceName}</h1>
-            <h1 className="flex items-center">
-              <button
-                disabled={selectedFolderId === null}
-                className={
-                  selectedFolderId === null
-                    ? `hover:cursor-not-allowed`
-                    : `hover:cursor-pointer`
-                }
-              >
-                <VscNewFile onClick={handleAddFile} />
-              </button>
 
-              <VscNewFolder
-                className={`hover:cursor-pointer ml-2`}
-                onClick={handleAddFolder}
-              />
-            </h1>
-          </div>
-          {data?.length > 0 ? (
-            <AntMenu
-              mode="inline"
-              defaultSelectedKeys={["1"]}
-              defaultOpenKeys={["sub1"]}
-              style={{ height: "100%", borderRight: 0 }}
-              items={items2}
-            />
-          ) : (
-            <div className="w-full h-full rounded-md">
-              <div className="w-full h-full grid items-center justify-center">
-                <h1>No Folders</h1>
-              </div>
-            </div>
-          )}
-        </Sider>
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
+      {!authenticated ? (
+        <h1 className="min-h-[80vh] w-full flex justify-center items-center text-3xl">
+          Not Authorized! ⛔️
+        </h1>
+      ) : (
+        <Layout className="pt-5">
+          <Sider
+            width={200}
+            style={{ background: colorBgContainer }}
+            className="rounded-md"
           >
-            {code.length > 0 ? (
-              <Editor
-                height="80vh"
-                width="100%"
-                theme="vs-dark"
-                defaultLanguage="javascript"
-                onChange={getEditorValue}
-                value={code}
-                onMount={handledEditorDidMount}
-                options={{
-                  fontSize: "20px",
-                }}
+            <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
+              <h1>{workspaceName}</h1>
+              <h1 className="flex items-center">
+                <button
+                  disabled={selectedFolderId === null}
+                  className={
+                    selectedFolderId === null
+                      ? `hover:cursor-not-allowed`
+                      : `hover:cursor-pointer`
+                  }
+                >
+                  <VscNewFile onClick={handleAddFile} />
+                </button>
+
+                <VscNewFolder
+                  className={`hover:cursor-pointer ml-2`}
+                  onClick={handleAddFolder}
+                />
+              </h1>
+            </div>
+            {data?.length > 0 ? (
+              <AntMenu
+                mode="inline"
+                defaultSelectedKeys={["1"]}
+                defaultOpenKeys={["sub1"]}
+                style={{ height: "100%", borderRight: 0 }}
+                items={items2}
               />
             ) : (
-              <h1>Choose a file to start editing</h1>
+              <div className="w-full h-full rounded-md">
+                <div className="w-full h-full grid items-center justify-center">
+                  <h1>No Folders</h1>
+                </div>
+              </div>
             )}
-          </Content>
+          </Sider>
+          <Layout style={{ padding: "0 24px 24px" }}>
+            <Content
+              style={{
+                padding: 24,
+                margin: 0,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              {code.length > 0 ? (
+                <Editor
+                  height="80vh"
+                  width="100%"
+                  theme="vs-dark"
+                  defaultLanguage="javascript"
+                  onChange={getEditorValue}
+                  value={code}
+                  onMount={handledEditorDidMount}
+                  options={{
+                    fontSize: "20px",
+                  }}
+                />
+              ) : (
+                <h1>Choose a file to start editing</h1>
+              )}
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
+      )}
       <Modal
         title="Add Folder"
         visible={showAddFolderModal}

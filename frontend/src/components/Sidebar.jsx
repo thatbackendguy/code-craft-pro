@@ -70,7 +70,7 @@ const Sidebar = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            Bill is a cat.
+        
           </div>
         </Content>
         <Footer

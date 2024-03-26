@@ -7,6 +7,8 @@ import Logo from "../assets/images/pig_logo.png";
 import { Toaster } from "react-hot-toast";
 
 export default function SignupPage() {
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL
+
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -22,7 +24,7 @@ export default function SignupPage() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://code-craft-pro.onrender.com/api/user/signup",
+        BACKEND_URL+"/api/user/signup",
         user
       );
 
@@ -30,7 +32,7 @@ export default function SignupPage() {
         console.log("Signup Success", response.data);
         toast.success("User Created Successfully");
 
-		localStorage.setItem("userID",response.data?.userID)
+        localStorage.setItem("userID", response.data?.userID);
         localStorage.setItem("isVerified", "false");
 
         window.location.replace("/otp-verification");

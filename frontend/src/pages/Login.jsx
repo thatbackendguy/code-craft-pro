@@ -11,25 +11,24 @@ export default function LoginPage() {
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL
+
   const onLogin = async () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://code-craft-pro.onrender.com/api/user/login",
+        BACKEND_URL+"/api/user/login",
         user
       );
-
-      // const res = response.json
 
       console.log(response);
       if (response.data.status === "Success") {
         localStorage.setItem("token", response.data?.token);
-        localStorage.setItem("userID",response.data?._id)
+        localStorage.setItem("userID", response.data?._id);
 
         console.log("Login Success", response.data);
         toast.success("Login Success");
 
-        //window.location.replace("/dashboard");
       } else if (response.data.status === "Error") {
         console.log("Error: ", response.data.message);
         toast.error(response.data.message);
@@ -53,9 +52,9 @@ export default function LoginPage() {
   // TO LOGIN AUTOMATICALLY IF TOKEN IS PRESENT
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const isVerified = localStorage.getItem("isVerified")
+    const isVerified = localStorage.getItem("isVerified");
 
-    if(isVerified==="false") {
+    if (isVerified === "false") {
       window.location.replace("/otp-verification");
     }
 
@@ -63,7 +62,6 @@ export default function LoginPage() {
       window.location.replace("/dashboard");
     }
   });
-
 
   return (
     <div className="min-h-screen flex items-center justify-center w-full bg-[#020817]">
