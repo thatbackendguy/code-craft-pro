@@ -147,7 +147,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			maxAge: 72 * 60 * 60 * 1000,
+			maxAge: 72 * 60 * 60 * 1000, // 72 hours or 3 days
 		});
 		res.json({
 			_id: findUser?._id,
