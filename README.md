@@ -26,7 +26,7 @@ sudo snap install node --classic
 	npm install
 	npm start
 	```
-4. Configure .env file in backend. By creating `.env` file
+4. Configure .env file in `backend` folder. By creating `.env` file
 and copy and paste the below file into `.env` file and configure accordingly.
 	```
 	DB_URI=
@@ -35,6 +35,12 @@ and copy and paste the below file into `.env` file and configure accordingly.
 	JWT_SECRET=
 	SMTP_HOST=
 	AES_SECRET=
+	```
+
+5. Configure .env file in `frontend` folder. By creating `.env` file
+and copy and paste the below file into `.env` file and configure accordingly.
+	```
+	REACT_APP_BACKEND_URL=
 	```
 ## Backend Routes
 #### User Routes
@@ -68,8 +74,8 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |15|Get File|POST|`/api/file/get/`|
 |16|Save code in file|PUT|`/api/file/save-code/`|
 |17|Add Collaborator to Workspace|POST|`/api/workspace/share/:workspaceID`|
-|18|Remove Collaborator from Workspace|DELETE|`/api/workspace/share/:workspaceID`|
-|19|Add Collaborator to Folder|POST|`/api/folder/share/:folderID`|
-|20|Remove Collaborator from Folder|DELETE|`/api/folder/share/:folderID`|
+|18|Remove Collaborator from Workspace|POST|`/api/workspace/share/delete/:workspaceID`|
+|19|Get Collaborators by WorkspaceID|GET|`/api/workspace/share/:workspaceID`|
+|20|Get Shared Workspace By UserID|GET|`/api/workspace/shared-with-me/:userID`|
 
 > Note: Correctly check the PORT where frontend and backend server is running
