@@ -23,6 +23,7 @@ const EditorPage = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const [code, setCode] = useState("");
+  const [language,setLanguage] = useState("javascript")
   const editorRef = useRef(null);
   // console.log(code);
   const handledEditorDidMount = (editor, monaco) => {
@@ -71,7 +72,7 @@ const EditorPage = () => {
 
   const handleFileClick = (fileID) => {
     if (fileID !== "") {
-      console.log(fileID);
+      // console.log(fileID);
       socket.emit("join_common_file", fileID);
     }
 
@@ -81,15 +82,60 @@ const EditorPage = () => {
 
   const getFileData = async (fileID) => {
     try {
-      const res = await axios.post(BACKEND_URL+"/api/file/get", {
+      const res = await axios.post(BACKEND_URL + "/api/file/get", {
         fileID: fileID,
       });
+      const fileName = res?.data?.file?.name;
+      const fileExtension = getFileExtension(fileName);
+      const languageModes = {
+        js: "javascript",
+        jsx: "javascript",
+        ts: "typescript",
+        tsx: "typescript",
+        py: "python",
+        html: "html",
+        css: "css",
+        scss: "scss",
+        less: "less",
+        java: "java",
+        cpp: "cpp",
+        c: "c",
+        cs: "csharp",
+        vb: "vb",
+        php: "php",
+        go: "go",
+        ruby: "ruby",
+        swift: "swift",
+        md: "markdown",
+        xml: "xml",
+        yml: "yaml",
+        json: "json",
+        sh: "bash",
+        bat: "bat",
+        sql: "sql",
+        r: "r",
+        clj: "clojure",
+        m: "objective-c",
+        kt: "kotlin",
+        scala: "scala",
+        rust: "rust",
+      };
 
+      const language = languageModes[fileExtension] || "";
+      setLanguage(language);
       setCode(res.data.file.data);
     } catch (error) {
       console.log(error);
     }
   };
+
+  function getFileExtension(fileName) {
+    const lastDotIndex = fileName.lastIndexOf(".");
+    if (lastDotIndex === -1) {
+      return "";
+    }
+    return fileName.slice(lastDotIndex + 1).toLowerCase();
+  }
 
   const saveFileData = async () => {
     try {
@@ -99,7 +145,7 @@ const EditorPage = () => {
         data: code,
       });
 
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       console.log(error);
     }
@@ -180,7 +226,7 @@ const EditorPage = () => {
 
       const isOwner = res.workspace.owner === userID;
 
-      console.log(`${res.workspace.owner} === ${userID}`, isOwner);
+      // console.log(`${res.workspace.owner} === ${userID}`, isOwner);
 
       if (!isOwner) {
         const isAuthenticated =
@@ -336,12 +382,14 @@ const EditorPage = () => {
                   height="80vh"
                   width="100%"
                   theme="vs-dark"
-                  defaultLanguage="javascript"
+                  language={language}
                   onChange={getEditorValue}
                   value={code}
                   onMount={handledEditorDidMount}
                   options={{
                     fontSize: "20px",
+                    wordWrap: true,
+                    renderLineHighlight:true 
                   }}
                 />
               ) : (
