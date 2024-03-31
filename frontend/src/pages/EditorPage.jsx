@@ -1,10 +1,8 @@
 import io from "socket.io-client";
 
-import { useState, useRef, useEffect } from "react";
+import { React, useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import Navbar from "../components/Navbar";
-
-import React from "react";
 
 import { Layout, Menu as AntMenu, theme, Modal, Input, Button } from "antd";
 
@@ -23,7 +21,7 @@ const EditorPage = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const [code, setCode] = useState("");
-  const [language,setLanguage] = useState("javascript")
+  const [language, setLanguage] = useState("javascript");
   const editorRef = useRef(null);
   // console.log(code);
   const handledEditorDidMount = (editor, monaco) => {
@@ -45,14 +43,14 @@ const EditorPage = () => {
   });
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
-  const [authenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // CODE
   const getFoldersFromServer = async () => {
     try {
       // Access the last segment
       const response = await fetch(
-        BACKEND_URL+`/api/folder/get-all/${workspaceID}`,
+        BACKEND_URL + `/api/folder/get-all/${workspaceID}`,
         {
           method: "GET",
         }
@@ -137,15 +135,33 @@ const EditorPage = () => {
     return fileName.slice(lastDotIndex + 1).toLowerCase();
   }
 
+  useEffect(() => {
+    const saveCodeToBackend = async () => {
+      try {
+        if (selectedFileId) {
+          const res = await axios.put(BACKEND_URL + "/api/file/save-code/", {
+            fileID: selectedFileId,
+            data: code,
+          });
+          // console.log(res);
+        }
+      } catch (error) {
+        console.error("Error saving code to backend:", error);
+      }
+    };
+  
+    if (selectedFileId) {
+      const timerID = setTimeout(saveCodeToBackend, 1000);
+      return () => {
+        clearTimeout(timerID);
+      };
+    }
+  }, [code, selectedFileId]);
+
   const saveFileData = async () => {
     try {
       socket.emit("send_user_code", { userCode: code, fileID: selectedFileId });
-      const res = await axios.put(BACKEND_URL+"/api/file/save-code/", {
-        fileID: selectedFileId,
-        data: code,
-      });
 
-      // console.log(res);
     } catch (error) {
       console.log(error);
     }
@@ -153,12 +169,9 @@ const EditorPage = () => {
 
   const deleteCurrFile = async (fileID) => {
     try {
-      const response = await fetch(
-        BACKEND_URL+`/api/file/delete/${fileID}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(BACKEND_URL + `/api/file/delete/${fileID}`, {
+        method: "DELETE",
+      });
       const res = await response.json();
       // console.log(res);
 
@@ -175,7 +188,7 @@ const EditorPage = () => {
 
     return {
       key: key,
-      icon: React.createElement(VscFolder), // Assuming you want the same icon for all folders
+      icon: React.createElement(VscFolder),
       label: (
         <div onClick={() => handleFolderClick(folder._id)}>{folder.name}</div>
       ),
@@ -216,7 +229,7 @@ const EditorPage = () => {
   const getSharedWorkspaces = async () => {
     try {
       const response = await fetch(
-        BACKEND_URL+`/api/workspace/share/${workspaceID}`,
+        BACKEND_URL + `/api/workspace/share/${workspaceID}`,
         {
           method: "GET",
         }
@@ -275,7 +288,7 @@ const EditorPage = () => {
 
     try {
       const response = await axios.post(
-        BACKEND_URL+`/api/folder/add/${workspaceID}`,
+        BACKEND_URL + `/api/folder/add/${workspaceID}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -299,7 +312,7 @@ const EditorPage = () => {
   const handleAddFileSubmit = async () => {
     try {
       const response = await axios.post(
-        BACKEND_URL+`/api/file/add/${selectedFolderId}`,
+        BACKEND_URL + `/api/file/add/${selectedFolderId}`,
         {
           name: formData.name,
           userID: localStorage.getItem("userID"),
@@ -321,7 +334,7 @@ const EditorPage = () => {
     <Layout className="min-h-screen">
       <Navbar />
 
-      {!authenticated ? (
+      {!isAuthenticated ? (
         <h1 className="min-h-[80vh] w-full flex justify-center items-center text-3xl">
           Not Authorized! ⛔️
         </h1>
@@ -389,7 +402,7 @@ const EditorPage = () => {
                   options={{
                     fontSize: "20px",
                     wordWrap: true,
-                    renderLineHighlight:true 
+                    renderLineHighlight: true,
                   }}
                 />
               ) : (

@@ -37,7 +37,6 @@ const createUser = asyncHandler(async (req, res) => {
 
 			// Email for OTP verification
 			try {
-				const name = newUser.name;
 				const payload = `<table class="body-wrap" style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; height: 100%; background: #efefef; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important;">
 				<tbody>
 				  <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
@@ -136,7 +135,7 @@ const loginUser = asyncHandler(async (req, res) => {
 	const findUser = await User.findOne({ email });
 	if (findUser && (await findUser.isPasswordMatched(password))) {
 		const refreshToken = await generateRefreshToken(findUser?._id);
-		const updateuser = await User.findByIdAndUpdate(
+		await User.findByIdAndUpdate(
 			findUser.id,
 			{
 				refreshToken: refreshToken,
@@ -200,7 +199,8 @@ const otpVerification = asyncHandler(async (req, res) => {
 		if (user.otp.toString() === req.body.otp.toString()) {
 			user.isVerfied = true
 			user.otp = ""
-			const updatedUser = await user.save()
+			
+			await user.save()
 
 			res.json({
 				status: "Success",
@@ -225,25 +225,13 @@ const otpVerification = asyncHandler(async (req, res) => {
 
 // get user profile details
 const getUserProfile = asyncHandler(async (req, res) => {
-	var totalLoc = null;
+	let totalLoc = 0;
 
 	const userID = req.params.userID;
 
 	validateMongoDbId(userID);
 	try {
-
-		// const workspaces = await Workspace.find({ owner: userID }).populate("folders")
-
-		// workspaces.forEach(w=>{
-		// 	w.folders.forEach(folder => {
-		// 		folder.files.forEach(async file=>
-		// 			{
-		// 				const currFile = await File.findById(file);
-		// 				console.log(currFile.data)
-		// 			})
-		// 	})
-		// })
-
+		
 		const currUser = await User.findById(userID, {username:1, name:1,email:1,mobile:1,_id:0});
 		const workspaceCount = await Workspace.countDocuments({ owner: userID })
 		const folderCount = await Folder.countDocuments({ owner: userID })

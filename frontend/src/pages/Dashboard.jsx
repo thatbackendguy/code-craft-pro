@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import React from "react";
+import { React, useState, useEffect } from "react";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
 import { IoTrashBinOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import { LuUserPlus2,LuUsers2 } from "react-icons/lu";
+import { LuUserPlus2 } from "react-icons/lu";
 import { RxCross2 } from "react-icons/rx";
 import Avatar from "react-avatar";
 
 const Dashboard = () => {
-
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // State variables for managing modal visibility and workspace data
@@ -50,13 +47,10 @@ const Dashboard = () => {
   const addWorkspace = async () => {
     const id = localStorage.getItem("userID");
     try {
-      const response = await axios.post(
-        BACKEND_URL+"/api/workspace/add",
-        {
-          name: workspaceName,
-          userID: id,
-        }
-      );
+      const response = await axios.post(BACKEND_URL + "/api/workspace/add", {
+        name: workspaceName,
+        userID: id,
+      });
       if (response.data.status === "Success") {
         getWorkspaces();
         toast.success(response.data.message);
@@ -74,7 +68,7 @@ const Dashboard = () => {
     try {
       const userID = localStorage.getItem("userID");
       const response = await fetch(
-        BACKEND_URL+`/api/workspace/get/${userID}`,
+        BACKEND_URL + `/api/workspace/get/${userID}`,
         {
           method: "GET",
         }
@@ -91,7 +85,7 @@ const Dashboard = () => {
   const deleteWorkspace = async (id) => {
     try {
       const response = await fetch(
-        BACKEND_URL+`/api/workspace/delete/${id}`,
+        BACKEND_URL + `/api/workspace/delete/${id}`,
         {
           method: "DELETE",
         }
@@ -106,7 +100,7 @@ const Dashboard = () => {
   const getSharedWorkspaces = async (workspaceID) => {
     try {
       const response = await fetch(
-        BACKEND_URL+`/api/workspace/share/${workspaceID}`,
+        BACKEND_URL + `/api/workspace/share/${workspaceID}`,
         {
           method: "GET",
         }
@@ -127,7 +121,7 @@ const Dashboard = () => {
     try {
       const userID = localStorage.getItem("userID");
       const response = await axios.post(
-        BACKEND_URL+`/api/workspace/share/${workspaceID}`,
+        BACKEND_URL + `/api/workspace/share/${workspaceID}`,
         {
           guestEmailID: emailToShare,
           ownerUserID: userID,
@@ -148,7 +142,7 @@ const Dashboard = () => {
     try {
       const userID = localStorage.getItem("userID");
       const response = await axios.post(
-        BACKEND_URL+`/api/workspace/share/delete/${workspaceID}`,
+        BACKEND_URL + `/api/workspace/share/delete/${workspaceID}`,
         {
           guestEmailID,
           ownerUserID: userID,
@@ -180,16 +174,14 @@ const Dashboard = () => {
       <Toaster />
       <div className="">
         <div className="px-12 flex justify-between w-full">
-<div>
-
-</div>
+          <div></div>
           <div className="items-center flex">
-          <button
-            className="bg-blue-500 px-4 py-2 rounded-md text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            onClick={openModal}
-          >
-            + Add Workspace
-          </button>
+            <button
+              className="bg-blue-500 px-4 py-2 rounded-md text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              onClick={openModal}
+            >
+              + Add Workspace
+            </button>
           </div>
         </div>
       </div>
