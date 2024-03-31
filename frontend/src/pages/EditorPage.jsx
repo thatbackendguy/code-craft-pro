@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-import { React, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import Navbar from "../components/Navbar";
 
