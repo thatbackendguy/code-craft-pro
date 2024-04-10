@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
-import { PiFilesThin ,PiFoldersThin,PiLaptopThin,PiCodeLight} from "react-icons/pi";
+import {
+  PiFilesThin,
+  PiFoldersThin,
+  PiLaptopThin,
+  PiCodeLight,
+} from "react-icons/pi";
 
 import Avatar from "react-avatar";
 import axios from "axios";
@@ -41,40 +46,66 @@ const Profile = () => {
     <div>
       <Navbar />
       <Toaster />
-      <div className="container mt-5 profile-container">
+      <div className="w-full">
         {profileData ? (
-          <div className="profile-card">
-            <div className="profile-header">
-              <Avatar
-                className="profile-avatar"
-                name={profileData.user.name}
-                size="100"
-                round={true}
-              />
-              <h1>Welcome, {profileData.user.name}!</h1>
-              <p>@{profileData.user.username}</p>
-            </div>
-            <div className="profile-details">
-              <div className="metric-card grid justify-center items-center w-full ">
-              <div className="grid justify-center items-center w-full">  <PiLaptopThin  className="text-[#007936] text-[60px]"  /></div>
-                <h5>Workspace Count</h5>
-                <p>{profileData.workspaceCount}</p>
+          <div className="profile-card flex justify-center items-center w-full">
+            <div>
+              <div className="mt-20 gap-3 profile-header grid justify-center items-center w-full">
+              <div className="text-center">
+                <Avatar
+                  name={profileData.user.name}
+                  size="100"
+                  round={true}
+                /></div>
+                <div><h1 className="text-3xl font-semi-bold ">Welcome, {profileData.user.name}!</h1>
+                <p className="text-center">@{profileData.user.username}</p></div>
               </div>
-              <div className="metric-card grid justify-center items-center w-full ">
-              
-                <div className="grid justify-center items-center w-full">    <PiFoldersThin  className="text-[#ff4d00] text-[60px]"  /></div>
-                <h3>Folder Count</h3>
-                <p>{profileData.folderCount}</p>
-              </div>
-              <div className="metric-card grid justify-center items-center w-full ">
-              <div className="grid justify-center items-center w-full">    <PiFilesThin  className="text-[#3c53ff] text-[60px]" /></div>
-                <h3>File Count</h3>
-                <p>{profileData.fileCount}</p>
-              </div>
-              <div className="metric-card grid justify-center items-center w-full ">
-              <div className="grid justify-center items-center w-full">    <PiCodeLight className="text-[#b3013b] text-[60px]"/></div>
-                <h6>Total Lines of Code</h6>
-                <p>{profileData.totalLoc}</p>
+
+              <div className="mt-8 flex justify-center items-center w-full ">
+                
+                <div className="w-full gap-4 grid grid-cols-1 lg:grid-cols-4">
+
+                  {/* WORKSPACE COUNT */}
+                  <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full">
+
+                    <div className="grid justify-center items-center w-full">
+                      {" "}
+                      <PiLaptopThin className="text-[#007936] text-[60px]" />
+                    </div>
+                    <h3 className="font-bold">Workspace Count</h3>
+                    <p className="text-center  text-gray-500">{profileData.workspaceCount}</p>
+                  </div>
+
+                  {/* FOLDER COUNT */}
+                  <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full ">
+                    <div className="grid justify-center items-center w-full">
+                      {" "}
+                      <PiFoldersThin className="text-[#ff4d00] text-[60px]" />
+                    </div>
+                    <h3 className="font-bold">Folder Count</h3>
+                    <p className="text-center  text-gray-500">{profileData.folderCount}</p>
+                  </div>
+
+                  {/* FILE COUNT */}
+                  <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full ">
+                    <div className="grid justify-center items-center w-full">
+                      {" "}
+                      <PiFilesThin className="text-[#3c53ff] text-[60px]" />
+                    </div>
+                    <h3 className="font-bold ">File Count</h3>
+                    <p className="text-center  text-gray-500">{profileData.fileCount}</p>
+                  </div>
+
+                  {/* LINES OF CODE */}
+                  <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full ">
+                    <div className="grid justify-center items-center w-full">
+                      {" "}
+                      <PiCodeLight className="text-[#b3013b] text-[60px]" />
+                    </div>
+                    <h3 className="font-bold">Total Lines of Code</h3>
+                    <p className="text-center text-gray-500">{profileData.totalLoc}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
