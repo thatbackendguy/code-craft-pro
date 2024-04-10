@@ -15,10 +15,9 @@ export default function Navbar() {
   const logout = async () => {
     try {
       localStorage.clear()
-      // Assuming the API call for logout is implemented elsewhere
+
       await axios.get('https://code-craft-pro.onrender.com/api/user/logout');
-      // Assuming the router is handled by React Router or other routing library
-      // router.push('/login');
+    
       toast.success('Logout Successful');
 
     } catch (error) {
@@ -84,7 +83,7 @@ export default function Navbar() {
               <li onClick={logout}>
                 <a
                 href="/"
-                  className={`block py-2 px-3 lg:w-full w-[26%] mt-2 lg:mt-0 sm:w-[13.5%] md:w-[10%] bg-[tomato] rounded`}
+                  className={`block py-2 px-3 lg:w-full mt-2 lg:mt-0 bg-[tomato] rounded`}
                 >
                   Logout
                 </a>

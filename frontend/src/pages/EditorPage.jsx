@@ -10,6 +10,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
 import { IoTrashBinOutline } from "react-icons/io5";
+import Loader from "../components/Loader"
 const { Content, Sider } = Layout;
 
 // for socket.io
@@ -44,6 +45,7 @@ const EditorPage = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setLoading] = useState(true)
 
   // CODE
   const getFoldersFromServer = async () => {
@@ -57,6 +59,7 @@ const EditorPage = () => {
       );
       const res = await response.json();
 
+      setLoading(false)
       setWorkspaceName(res.workspaceName);
       setData(res.folders);
     } catch (error) {
@@ -143,6 +146,7 @@ const EditorPage = () => {
             fileID: selectedFileId,
             data: code,
           });
+          setLoading(false)
           // console.log(res);
         }
       } catch (error) {
@@ -174,6 +178,7 @@ const EditorPage = () => {
       });
       const res = await response.json();
       // console.log(res);
+      setLoading(false)
 
       if (res.status === "Success") {
         getFoldersFromServer();
@@ -234,7 +239,9 @@ const EditorPage = () => {
           method: "GET",
         }
       );
+
       const res = await response.json();
+      setLoading(false)
       const userID = localStorage.getItem("userID");
 
       const isOwner = res.workspace.owner === userID;
@@ -274,7 +281,7 @@ const EditorPage = () => {
   // useEffect for socket
   useEffect(() => {
     socket.on("receive_user_code", (data) => {
-      // alert(data.userCode);
+
       setCode(data.userCode);
     });
   }, [socket]);
@@ -294,7 +301,7 @@ const EditorPage = () => {
           userID: localStorage.getItem("userID"),
         }
       );
-
+      setLoading(false)
       if (response?.data?.status === "Success") {
         getFoldersFromServer();
       }
@@ -319,7 +326,7 @@ const EditorPage = () => {
           workspaceID: workspaceID,
         }
       );
-
+      setLoading(false)
       if (response?.data?.status === "Success") {
         getFoldersFromServer();
       }
@@ -334,14 +341,14 @@ const EditorPage = () => {
     <Layout className="min-h-screen">
       <Navbar />
 
-      {!isAuthenticated ? (
+      {isLoading ? <Loader/> :!isAuthenticated ? (
         <h1 className="min-h-[80vh] w-full flex justify-center items-center text-3xl">
           Not Authorized! ⛔️
         </h1>
       ) : (
         <Layout className="pt-5">
           <Sider
-            width={200}
+            width={250}
             style={{ background: colorBgContainer }}
             className="rounded-md"
           >
@@ -406,7 +413,7 @@ const EditorPage = () => {
                   }}
                 />
               ) : (
-                <h1>Choose a file to start editing</h1>
+                <h1 className="grid items-center justify-center w-full min-h-[87vh]">Choose a file to start editing</h1>
               )}
             </Content>
           </Layout>

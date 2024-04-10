@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { LuUserPlus2 } from "react-icons/lu";
 import { RxCross2 } from "react-icons/rx";
 import Avatar from "react-avatar";
+import Loader from "../components/Loader";
 
 const Dashboard = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [workspaceID, setWorkspaceID] = useState();
   const [sharedWorkspaces, setSharedWorkspaces] = useState();
   const [sharedWorkspaceLoading, setSharedWorkspaceLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true)
 
   // Function to handle opening the modal
   const openModal = () => {
@@ -51,6 +53,8 @@ const Dashboard = () => {
         name: workspaceName,
         userID: id,
       });
+
+      setLoading(false)
       if (response.data.status === "Success") {
         getWorkspaces();
         toast.success(response.data.message);
@@ -75,6 +79,7 @@ const Dashboard = () => {
       );
       const res = await response.json();
       setWorkspace(res.userWorkspaces);
+      setLoading(false)
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -91,6 +96,7 @@ const Dashboard = () => {
         }
       );
       const res = await response.json();
+      setLoading(false)
       getWorkspaces();
     } catch (error) {
       console.log(error);
@@ -106,7 +112,7 @@ const Dashboard = () => {
         }
       );
       const res = await response.json();
-
+      setLoading(false)
       // console.log(res);
 
       // console.log(res.workspace.sharedWith);
@@ -127,6 +133,7 @@ const Dashboard = () => {
           ownerUserID: userID,
         }
       );
+      setLoading(false)
       if (response.data.status === "Success") {
         getSharedWorkspaces(workspaceID);
         toast.success(response.data.message);
@@ -148,7 +155,7 @@ const Dashboard = () => {
           ownerUserID: userID,
         }
       );
-
+      setLoading(false)
       if (response.data.status === "Success") {
         getSharedWorkspaces(workspaceID);
         toast.success(response.data.message);
@@ -185,7 +192,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      {workspace?.length > 0 ? (
+      {isLoading ? <Loader/> : workspace?.length > 0 ? (
         <div className="grid grid-cols-5 px-8 gap-4 mt-8">
           {workspace?.map((item, index) => (
             <div
@@ -259,8 +266,6 @@ const Dashboard = () => {
                 className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                 onClick={() => {
                   shareWorkspace();
-                  // console.log('Share workspace with:', emailToShare);
-                  // closeShareModal();
                 }}
               >
                 Share
@@ -270,7 +275,7 @@ const Dashboard = () => {
             <div>
               <h1 className="py-4 font-semi-bold text-lg">Shared With</h1>
               {sharedWorkspaceLoading ? (
-                <h1>Loading...</h1>
+                <Loader/>
               ) : sharedWorkspaces?.length > 0 ? (
                 <>
                   {sharedWorkspaces?.map((item, index) => {
@@ -304,7 +309,7 @@ const Dashboard = () => {
                   })}
                 </>
               ) : (
-                <h1 className="flex justify-center items-center h-[60px] text-gray-500">
+               <h1 className="flex justify-center items-center h-[60px] text-gray-500">
                   Not shared 🔒
                 </h1>
               )}

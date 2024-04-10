@@ -7,30 +7,18 @@ import { Link } from "react-router-dom";
 import { LuUsers2 } from "react-icons/lu";
 import { RxCross2 } from "react-icons/rx";
 import Avatar from "react-avatar";
+import Loader from "../components/Loader";
 
 const SharedDashboard = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-  // State variables for managing modal visibility and workspace data
-  const [showModal, setShowModal] = useState(false);
-  const [workspaceName, setWorkspaceName] = useState("");
   const [workspace, setWorkspace] = useState([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [emailToShare, setEmailToShare] = useState("");
   const [workspaceID, setWorkspaceID] = useState();
   const [sharedWorkspaces, setSharedWorkspaces] = useState();
   const [sharedWorkspaceLoading, setSharedWorkspaceLoading] = useState(false);
-
-  // Function to handle opening the modal
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  // Function to handle closing the modal
-  const closeModal = () => {
-    setWorkspaceName("");
-    setShowModal(false);
-  };
+  const [isLoading, setLoading] = useState(true)
 
   const openShareModal = (id) => {
     setWorkspaceID(id);
@@ -56,8 +44,10 @@ const SharedDashboard = () => {
         }
       );
       const res = await response.json();
+  
       setWorkspace(res.user.sharedWithMe);
-      console.log(res);
+      // console.log(res);
+      setLoading(false)
     } catch (error) {
       console.log(error);
       toast.error(error)
@@ -78,6 +68,7 @@ const SharedDashboard = () => {
       const res = await response.json();
 
       setSharedWorkspaces(res.workspace.sharedWith);
+      setLoading(false)
     } catch (error) {
       console.log(error);
       toast.error(error)
@@ -98,7 +89,7 @@ const SharedDashboard = () => {
   return (
     <div className="">
       <Toaster />
-      {workspace?.length > 0 ? (
+      {isLoading ? <Loader/> : workspace?.length > 0 ? (
         <div className="grid grid-cols-5 px-8 gap-4 mt-8">
           {workspace?.map((item, index) => (
             <div

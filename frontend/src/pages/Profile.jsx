@@ -10,7 +10,8 @@ import {
 
 import Avatar from "react-avatar";
 import axios from "axios";
-import "../App.css"; // Adjusted CSS path
+import "../App.css";
+import Loader from "../components/Loader";
 
 const Profile = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -51,29 +52,33 @@ const Profile = () => {
           <div className="profile-card flex justify-center items-center w-full">
             <div>
               <div className="mt-20 gap-3 profile-header grid justify-center items-center w-full">
-              <div className="text-center">
-                <Avatar
-                  name={profileData.user.name}
-                  size="100"
-                  round={true}
-                /></div>
-                <div><h1 className="text-3xl font-semi-bold ">Welcome, {profileData.user.name}!</h1>
-                <p className="text-center">@{profileData.user.username}</p></div>
+                <div className="text-center">
+                  <Avatar
+                    name={profileData.user.name}
+                    size="100"
+                    round={true}
+                  />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-semi-bold ">
+                    Welcome, {profileData.user.name}!
+                  </h1>
+                  <p className="text-center">@{profileData.user.username}</p>
+                </div>
               </div>
 
               <div className="mt-8 flex justify-center items-center w-full ">
-                
                 <div className="w-full gap-4 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2">
-
                   {/* WORKSPACE COUNT */}
                   <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full">
-
                     <div className="grid justify-center items-center w-full">
                       {" "}
                       <PiLaptopThin className="text-[#007936] text-[60px]" />
                     </div>
                     <h3 className="font-bold">Workspace Count</h3>
-                    <p className="text-center  text-gray-500">{profileData.workspaceCount}</p>
+                    <p className="text-center  text-gray-500">
+                      {profileData.workspaceCount}
+                    </p>
                   </div>
 
                   {/* FOLDER COUNT */}
@@ -83,7 +88,9 @@ const Profile = () => {
                       <PiFoldersThin className="text-[#ff4d00] text-[60px]" />
                     </div>
                     <h3 className="font-bold">Folder Count</h3>
-                    <p className="text-center  text-gray-500">{profileData.folderCount}</p>
+                    <p className="text-center  text-gray-500">
+                      {profileData.folderCount}
+                    </p>
                   </div>
 
                   {/* FILE COUNT */}
@@ -93,7 +100,9 @@ const Profile = () => {
                       <PiFilesThin className="text-[#3c53ff] text-[60px]" />
                     </div>
                     <h3 className="font-bold ">File Count</h3>
-                    <p className="text-center  text-gray-500">{profileData.fileCount}</p>
+                    <p className="text-center  text-gray-500">
+                      {profileData.fileCount}
+                    </p>
                   </div>
 
                   {/* LINES OF CODE */}
@@ -103,14 +112,16 @@ const Profile = () => {
                       <PiCodeLight className="text-[#b3013b] text-[60px]" />
                     </div>
                     <h3 className="font-bold">Total Lines of Code</h3>
-                    <p className="text-center text-gray-500">{profileData.totalLoc}</p>
+                    <p className="text-center text-gray-500">
+                      {profileData.totalLoc}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         ) : (
-          <p>Loading...</p>
+          <Loader/>
         )}
       </div>
     </div>

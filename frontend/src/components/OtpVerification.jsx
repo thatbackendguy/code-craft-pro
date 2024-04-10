@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios'; // Import axios for making API calls
+import axios from 'axios';
 import Logo from '../assets/images/pig_logo.png';
 import toast, { Toaster } from "react-hot-toast";
 const OtpVerification = () => {
@@ -7,37 +7,34 @@ const OtpVerification = () => {
   const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
   useEffect(() => {
-    // Define a function to make the API call
+
     const verifyOtp = async () => {
-      const otpValue = otp.join(''); // Join all digits to form the OTP string
+      const otpValue = otp.join('');
       const userID = localStorage.getItem("userID")
       const data = {
         otp: otpValue,
         userID
       }
 
-      console.log(data);
+      // console.log(data);
       try {
-        // Make the POST request to your API endpoint
         const response = await axios.post('https://code-craft-pro.onrender.com/api/user/otp-verification', data);
 
-        console.log(response.data); // Log the response data
-        // You can add further logic here based on the response
+        // console.log(response.data);
 
         if(response.data.status === "Success") {
             localStorage.setItem("isVerified","true")
             window.location.replace("/login")
         }
       } catch (error) {
-        console.error('Error:', error); // Log any errors
+        console.error('Error:', error);
       }
     };
 
-    // Check if all OTP digits are entered
     if (otp.every(digit => digit !== '')) {
-      verifyOtp(); // Call the function to verify OTP
+      verifyOtp(); 
     }
-  }, [otp]); // Run the effect whenever the otp state changes
+  }, [otp]);
 
   const handleChange = (e, index) => {
     const value = e.target.value;

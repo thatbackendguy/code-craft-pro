@@ -420,7 +420,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
       return res.status(404).json({ status: "Error", message: "Owner user not found." });
     }
 
-    // Check if the owner is trying to add themselves as a collaborator
+
     if (ownerUser.email === guestEmailID) {
       return res.status(400).json({ status: "Error", message: "Owner cannot add themselves as a collaborator." });
     }
@@ -456,7 +456,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     res.status(500).json({
       status: "Error",
       message: "Unable to share the workspace with the user!",
-      error: error.message // Send error message for debugging purposes
+      error: error.message 
     });
   }
 });
@@ -520,12 +520,11 @@ const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
     res.status(500).json({
       status: "Error",
       message: "Unable to remove the collaborator from the workspace!",
-      error: error.message // Send error message for debugging purposes
+      error: error.message
     });
   }
 });
 
-// Get users of common workspace
 const getCollaboratorByWorkspaceID = asyncHandler(async (req, res) => {
   const workspaceID = req.params.workspaceID;
   validateMongoDbId(workspaceID);
@@ -534,7 +533,7 @@ const getCollaboratorByWorkspaceID = asyncHandler(async (req, res) => {
     const workspace = await Workspace.findById({ _id: workspaceID })
       .populate({
         path: 'sharedWith',
-        select: 'name email', // Specify the fields you want to include
+        select: 'name email',
       });
 
     if (workspace) {
