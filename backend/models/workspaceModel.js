@@ -11,7 +11,7 @@ const workspaceSchema = new mongoose.Schema({
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    
+
 },{ timestamps: true })
 
 const Workspace = mongoose.models.workspace || mongoose.model("workspace", workspaceSchema);

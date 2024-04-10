@@ -18,10 +18,10 @@
 }
 
 .profile-card {
-    max-width: 800px;
-    background-color: #fff;
+    max-width: 1200px;
+
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
     padding: 20px;
 }
 
@@ -31,8 +31,9 @@
 
 .profile-header h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 32px;
     color: #333;
+    font-weight: 600;
 }
 
 .profile-header p {
@@ -45,10 +46,11 @@
     margin-top: 20px;
     display: flex;
     justify-content: space-around;
+    width: 1000px;
 }
 
 .metric-card {
-    background-color: #f0f0f0;
+
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -60,21 +62,6 @@
     font-size: 20px;
 }
 
-.metric-card:nth-child(1) {
-    background-color: #ffe8d4; /* Orange */
-}
-
-.metric-card:nth-child(2) {
-    background-color: #d1ffd1; /* Green */
-}
-
-.metric-card:nth-child(3) {
-    background-color: #c4e6ff; /* Blue */
-}
-
-.metric-card:nth-child(4) {
-    background-color: #ffd1d1; /* Red */
-}
 .profile-details {
     display: flex;
     justify-content: space-between; /* Align cards with space between */
@@ -83,4 +70,5 @@
 .metric-card {
     flex: 1; /* Grow to fill available space */
     margin: 0 10px; /* Add spacing from left and right */
+
 }

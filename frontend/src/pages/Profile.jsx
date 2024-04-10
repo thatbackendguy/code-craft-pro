@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
+import { PiFilesThin ,PiFoldersThin,PiLaptopThin,PiCodeLight} from "react-icons/pi";
+
 import Avatar from "react-avatar";
 import axios from "axios";
 import "../App.css"; // Adjusted CSS path
@@ -15,7 +17,7 @@ const Profile = () => {
       try {
         const userID = localStorage.getItem("userID");
         const response = await axios.get(
-          BACKEND_URL+`/api/user/profile/${userID}`
+          BACKEND_URL + `/api/user/profile/${userID}`
         );
         setProfileData(response.data);
       } catch (error) {
@@ -53,20 +55,25 @@ const Profile = () => {
               <p>@{profileData.user.username}</p>
             </div>
             <div className="profile-details">
-              <div className="metric-card">
-                <h3>Workspace Count</h3>
+              <div className="metric-card grid justify-center items-center w-full ">
+              <div className="grid justify-center items-center w-full">  <PiLaptopThin  className="text-[#007936] text-[60px]"  /></div>
+                <h5>Workspace Count</h5>
                 <p>{profileData.workspaceCount}</p>
               </div>
-              <div className="metric-card">
+              <div className="metric-card grid justify-center items-center w-full ">
+              
+                <div className="grid justify-center items-center w-full">    <PiFoldersThin  className="text-[#ff4d00] text-[60px]"  /></div>
                 <h3>Folder Count</h3>
                 <p>{profileData.folderCount}</p>
               </div>
-              <div className="metric-card">
+              <div className="metric-card grid justify-center items-center w-full ">
+              <div className="grid justify-center items-center w-full">    <PiFilesThin  className="text-[#3c53ff] text-[60px]" /></div>
                 <h3>File Count</h3>
                 <p>{profileData.fileCount}</p>
               </div>
-              <div className="metric-card">
-                <h3>Total Lines of Code</h3>
+              <div className="metric-card grid justify-center items-center w-full ">
+              <div className="grid justify-center items-center w-full">    <PiCodeLight className="text-[#b3013b] text-[60px]"/></div>
+                <h6>Total Lines of Code</h6>
                 <p>{profileData.totalLoc}</p>
               </div>
             </div>
