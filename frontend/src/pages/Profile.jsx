@@ -63,7 +63,7 @@ const Profile = () => {
 
               <div className="mt-8 flex justify-center items-center w-full ">
                 
-                <div className="w-full gap-4 grid grid-cols-1 lg:grid-cols-4">
+                <div className="w-full gap-4 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2">
 
                   {/* WORKSPACE COUNT */}
                   <div className="border border-black-800 rounded-md p-4 grid justify-center items-center w-full">
