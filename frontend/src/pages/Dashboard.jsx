@@ -80,7 +80,7 @@ const Dashboard = () => {
       const res = await response.json();
       setWorkspace(res.userWorkspaces);
       setLoading(false);
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       console.log(error);
     }
@@ -96,7 +96,7 @@ const Dashboard = () => {
         }
       );
       const res = await response.json();
-console.log(res);
+// console.log(res);
       if (res.status === "success") {
         setLoading(false);
         getWorkspaces();

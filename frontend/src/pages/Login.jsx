@@ -21,7 +21,7 @@ export default function LoginPage() {
         user
       );
 
-      console.log(response);
+      // console.log(response);
       if (response.data.status === "success") {
         localStorage.setItem("token", response.data?.token);
         localStorage.setItem("userID", response.data?._id);
