@@ -6,7 +6,6 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import EditorPage from './pages/EditorPage';
 import OtpVerification from './components/OtpVerification';
-import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import WorkspaceTabs from './components/WorkspaceTabs';
 

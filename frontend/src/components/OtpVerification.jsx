@@ -22,12 +22,12 @@ const OtpVerification = () => {
 
         // console.log(response.data);
 
-        if(response.data.status === "Success") {
+        if(response.data.status === "success") {
             localStorage.setItem("isVerified","true")
             window.location.replace("/login")
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('error:', error);
       }
     };
 

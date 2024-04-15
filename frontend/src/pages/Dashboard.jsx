@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [workspaceID, setWorkspaceID] = useState();
   const [sharedWorkspaces, setSharedWorkspaces] = useState();
   const [sharedWorkspaceLoading, setSharedWorkspaceLoading] = useState(false);
-  const [isLoading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(true);
 
   // Function to handle opening the modal
   const openModal = () => {
@@ -54,8 +54,8 @@ const Dashboard = () => {
         userID: id,
       });
 
-      setLoading(false)
-      if (response.data.status === "Success") {
+      setLoading(false);
+      if (response.data.status === "success") {
         getWorkspaces();
         toast.success(response.data.message);
       }
@@ -79,7 +79,7 @@ const Dashboard = () => {
       );
       const res = await response.json();
       setWorkspace(res.userWorkspaces);
-      setLoading(false)
+      setLoading(false);
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -96,8 +96,11 @@ const Dashboard = () => {
         }
       );
       const res = await response.json();
-      setLoading(false)
-      getWorkspaces();
+console.log(res);
+      if (res.status === "success") {
+        setLoading(false);
+        getWorkspaces();
+      }
     } catch (error) {
       console.log(error);
     }
@@ -112,7 +115,7 @@ const Dashboard = () => {
         }
       );
       const res = await response.json();
-      setLoading(false)
+      setLoading(false);
       // console.log(res);
 
       // console.log(res.workspace.sharedWith);
@@ -133,8 +136,8 @@ const Dashboard = () => {
           ownerUserID: userID,
         }
       );
-      setLoading(false)
-      if (response.data.status === "Success") {
+      setLoading(false);
+      if (response.data.status === "success") {
         getSharedWorkspaces(workspaceID);
         toast.success(response.data.message);
       }
@@ -155,8 +158,8 @@ const Dashboard = () => {
           ownerUserID: userID,
         }
       );
-      setLoading(false)
-      if (response.data.status === "Success") {
+      setLoading(false);
+      if (response.data.status === "success") {
         getSharedWorkspaces(workspaceID);
         toast.success(response.data.message);
       }
@@ -192,7 +195,9 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      {isLoading ? <Loader/> : workspace?.length > 0 ? (
+      {isLoading ? (
+        <Loader />
+      ) : workspace?.length > 0 ? (
         <div className="grid grid-cols-5 px-8 gap-4 mt-8">
           {workspace?.map((item, index) => (
             <div
@@ -275,7 +280,7 @@ const Dashboard = () => {
             <div>
               <h1 className="py-4 font-semi-bold text-lg">Shared With</h1>
               {sharedWorkspaceLoading ? (
-                <Loader/>
+                <Loader />
               ) : sharedWorkspaces?.length > 0 ? (
                 <>
                   {sharedWorkspaces?.map((item, index) => {
@@ -309,7 +314,7 @@ const Dashboard = () => {
                   })}
                 </>
               ) : (
-               <h1 className="flex justify-center items-center h-[60px] text-gray-500">
+                <h1 className="flex justify-center items-center h-[60px] text-gray-500">
                   Not shared 🔒
                 </h1>
               )}

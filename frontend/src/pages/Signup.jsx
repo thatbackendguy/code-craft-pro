@@ -28,8 +28,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL
         user
       );
 
-      if (response.data?.status === "Success") {
-        console.log("Signup Success", response.data);
+      if (response.data?.status === "success") {
+        console.log("Signup success", response.data);
         toast.success("User Created Successfully");
 
         localStorage.setItem("userID", response.data?.userID);

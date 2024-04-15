@@ -25,7 +25,11 @@ const Profile = () => {
         const response = await axios.get(
           BACKEND_URL + `/api/user/profile/${userID}`
         );
-        setProfileData(response.data);
+        
+        if(response.data.status === "success")
+        {
+          setProfileData(response.data);
+        }
       } catch (error) {
         console.log(error);
         toast.error("Failed to fetch profile data");

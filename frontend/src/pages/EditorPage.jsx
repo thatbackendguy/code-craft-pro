@@ -138,8 +138,9 @@ const EditorPage = () => {
     return fileName.slice(lastDotIndex + 1).toLowerCase();
   }
 
-  useEffect(() => {
-    const saveCodeToBackend = async () => {
+  const saveFileData = async () => {
+    try {
+      socket.emit("send_user_code", { userCode: code, fileID: selectedFileId });
       try {
         if (selectedFileId) {
           const res = await axios.put(BACKEND_URL + "/api/file/save-code/", {
@@ -147,25 +148,11 @@ const EditorPage = () => {
             data: code,
           });
           setLoading(false)
-          // console.log(res);
+console.log(res);
         }
       } catch (error) {
-        console.error("Error saving code to backend:", error);
+        console.error("error saving code to backend:", error);
       }
-    };
-  
-    if (selectedFileId) {
-      const timerID = setTimeout(saveCodeToBackend, 1000);
-      return () => {
-        clearTimeout(timerID);
-      };
-    }
-  }, [code, selectedFileId]);
-
-  const saveFileData = async () => {
-    try {
-      socket.emit("send_user_code", { userCode: code, fileID: selectedFileId });
-
     } catch (error) {
       console.log(error);
     }
@@ -180,7 +167,7 @@ const EditorPage = () => {
       // console.log(res);
       setLoading(false)
 
-      if (res.status === "Success") {
+      if (res.status === "success") {
         getFoldersFromServer();
       }
     } catch (error) {
@@ -302,7 +289,7 @@ const EditorPage = () => {
         }
       );
       setLoading(false)
-      if (response?.data?.status === "Success") {
+      if (response?.data?.status === "success") {
         getFoldersFromServer();
       }
     } catch (error) {
@@ -327,7 +314,7 @@ const EditorPage = () => {
         }
       );
       setLoading(false)
-      if (response?.data?.status === "Success") {
+      if (response?.data?.status === "success") {
         getFoldersFromServer();
       }
     } catch (error) {

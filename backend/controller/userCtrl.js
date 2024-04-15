@@ -107,7 +107,7 @@ const createUser = asyncHandler(async (req, res) => {
 
 				res.json({
 					userID: newUser._id,
-					status: "Success",
+					status: "success",
 					message: "New user successfully created!"
 				});
 			} catch (error) {
@@ -120,8 +120,8 @@ const createUser = asyncHandler(async (req, res) => {
 			throw new Error(error);
 		}
 	} else {
-		res.json({
-			status: "Error",
+		res.status(500).json({
+			status: "error",
 			message: "Duplicate Email Found! User already exists!"
 		});
 	}
@@ -153,11 +153,11 @@ const loginUser = asyncHandler(async (req, res) => {
 			username: findUser?.username,
 			email: findUser?.email,
 			token: generateToken(findUser?._id),
-			status: "Success",
+			status: "success",
 		});
 	} else {
-		res.json({
-			status: "Error",
+		res.status(500).json({
+			status: "error",
 			message: "Invalid Credentials!"
 		});
 	}
@@ -203,19 +203,19 @@ const otpVerification = asyncHandler(async (req, res) => {
 			await user.save()
 
 			res.json({
-				status: "Success",
+				status: "success",
 				message: "OTP Verified!"
 			})
 		} else {
-			res.json({
-				status: "Error",
+			res.jstatus(500).son({
+				status: "error",
 				message: "OTP Invalid!"
 			})
 		}
 
 	} catch (e) {
-		res.json({
-			status: "Error",
+		res.status(500).json({
+			status: "error",
 			message: e
 		})
 	}
@@ -232,11 +232,14 @@ const getUserProfile = asyncHandler(async (req, res) => {
 	validateMongoDbId(userID);
 	try {
 		
-		const currUser = await User.findById(userID, {username:1, name:1,email:1,mobile:1,_id:0});
+		const currUser = await User.findById(userID, {username:1, name:1,_id:0});
+
 		const workspaceCount = await Workspace.countDocuments({ owner: userID })
+
 		const folderCount = await Folder.countDocuments({ owner: userID })
 
 		const files = await File.find({ owner: userID })
+		
 		const fileCount = files.length;
 		if (fileCount > 0) {
 			files.forEach(f => {
@@ -247,14 +250,13 @@ const getUserProfile = asyncHandler(async (req, res) => {
 		res.json({ 
 			status:"success",
 			"user": currUser,
-			// workspaces
 			workspaceCount,
 			folderCount, 
 			fileCount, 
 			totalLoc, 
 		})
 	} catch (error) {
-		res.json({
+		res.status(500).json({
 			status: "error",
 			message: error
 		})

@@ -22,15 +22,15 @@ export default function LoginPage() {
       );
 
       console.log(response);
-      if (response.data.status === "Success") {
+      if (response.data.status === "success") {
         localStorage.setItem("token", response.data?.token);
         localStorage.setItem("userID", response.data?._id);
 
-        console.log("Login Success", response.data);
-        toast.success("Login Success");
+        console.log("Login success", response.data);
+        toast.success("Login success");
 
-      } else if (response.data.status === "Error") {
-        console.log("Error: ", response.data.message);
+      } else if (response.data.status === "error") {
+        console.log("error: ", response.data.message);
         toast.error(response.data.message);
       }
     } catch (error) {
