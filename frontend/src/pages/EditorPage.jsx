@@ -147,8 +147,8 @@ const EditorPage = () => {
             fileID: selectedFileId,
             data: code,
           });
-          setLoading(false)
-console.log(res);
+          if(res.data.status === "success")
+          {setLoading(false)}
         }
       } catch (error) {
         console.error("error saving code to backend:", error);
