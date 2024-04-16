@@ -105,22 +105,24 @@ const createUser = asyncHandler(async (req, res) => {
 
 				sendEmail(data);
 
-				res.json({
-					userID: newUser._id,
-					status: "success",
-					message: "New user successfully created!"
-				});
 			} catch (error) {
 				throw new Error(error);
 			}
 
-			// return response
-			res.json(newUser);
+			res.status(201).json({
+				userID: newUser._id,
+				status: "success",
+				message: "New user successfully created!"
+			});
+
 		} catch (error) {
-			throw new Error(error);
+			res.status(500).json({
+			status: "error",
+			message: error
+		});
 		}
 	} else {
-		res.status(500).json({
+		res.status(409).json({
 			status: "error",
 			message: "Duplicate Email Found! User already exists!"
 		});
@@ -143,12 +145,12 @@ const loginUser = asyncHandler(async (req, res) => {
 			{ new: true }
 		);
 
-
-		res.cookie("refreshToken", refreshToken, {
+		res.status(201).cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			maxAge: 72 * 60 * 60 * 1000, // 72 hours or 3 days
 		});
-		res.json({
+
+		res.status(200).json({
 			_id: findUser?._id,
 			username: findUser?.username,
 			email: findUser?.email,
@@ -156,7 +158,7 @@ const loginUser = asyncHandler(async (req, res) => {
 			status: "success",
 		});
 	} else {
-		res.status(500).json({
+		res.status(401).json({
 			status: "error",
 			message: "Invalid Credentials!"
 		});
@@ -167,8 +169,11 @@ const loginUser = asyncHandler(async (req, res) => {
 const logout = asyncHandler(async (req, res) => {
 	const cookie = req.cookies;
 	const refreshToken = cookie?.refreshToken;
+
 	if (!refreshToken) throw new Error("No Refresh Token in Cookies");
+
 	const user = await User.findOne({ refreshToken });
+
 	if (!user) {
 		res.clearCookie("refreshToken", {
 			httpOnly: true,
@@ -178,14 +183,17 @@ const logout = asyncHandler(async (req, res) => {
 			message: "Logout Successful!"
 		});; // forbidden
 	}
+
 	await User.findOneAndUpdate({ refreshToken }, {
 		refreshToken: "",
 	});
-	res.clearCookie("refreshToken", {
+
+	res.status(200).clearCookie("refreshToken", {
 		httpOnly: true,
 		secure: true,
 	});
-	res.json({
+
+	res.status(200).json({
 		message: "Logout Successful!"
 	}); // forbidden
 });
@@ -202,12 +210,12 @@ const otpVerification = asyncHandler(async (req, res) => {
 			
 			await user.save()
 
-			res.json({
+			res.status(200).json({
 				status: "success",
 				message: "OTP Verified!"
 			})
 		} else {
-			res.jstatus(500).son({
+			res.status(401).json({
 				status: "error",
 				message: "OTP Invalid!"
 			})
@@ -247,7 +255,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 			})
 		}
 
-		res.json({ 
+		res.status(200).json({ 
 			status:"success",
 			"user": currUser,
 			workspaceCount,

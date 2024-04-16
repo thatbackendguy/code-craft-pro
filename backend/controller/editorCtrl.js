@@ -22,14 +22,14 @@ const addFolder = asyncHandler(async (req, res) => {
   });
 
   if (findFolder) {
-    return res.json({
+    return res.status(409).json({
       status: "error",
       message: `A folder with the name "${folderName}" already exists in this workspace.`,
     });
   }
 
   if (!findWorkspace) {
-    return res.json({
+    return res.status(404).json({
       status: "error",
       message: "Workspace not found.",
     });
@@ -48,7 +48,7 @@ const addFolder = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    res.json({
+    res.status(201).json({
       status: "success",
       message: `${folderName} folder created successfully!`,
     });
@@ -68,7 +68,7 @@ const addWorkspace = asyncHandler(async (req, res) => {
   const findWorkspace = await Workspace.findOne({ name, owner: userID });
 
   if (findWorkspace) {
-    return res.json({
+    return res.status(409).json({
       status: "error",
       message: `A workspace with the name "${name}" already exists.`,
     });
@@ -84,7 +84,7 @@ const addWorkspace = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    res.json({
+    res.status(201).json({
       status: "success",
       message: `${name} workspace created successfully!`,
     });
@@ -113,14 +113,14 @@ const addFile = asyncHandler(async (req, res) => {
   });
 
   if (findFile) {
-    return res.json({
+    return res.status(409).json({
       status: "error",
       message: `A file with the name "${fileName}" already exists in this folder.`,
     });
   }
 
   if (!findFolder) {
-    return res.json({
+    return res.status(404).json({
       status: "error",
       message: "Folder not found.",
     });
@@ -141,7 +141,7 @@ const addFile = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    res.json({
+    res.status(201).json({
       status: "success",
       message: `${fileName} file created successfully!`,
     });
@@ -159,7 +159,7 @@ const getWorkspacesByUserID = asyncHandler(async (req, res) => {
 
     //console.log(userWorkspaces)
 
-    res.json({
+    res.status(200).json({
       userWorkspaces
     })
   } catch (error) {
@@ -206,7 +206,7 @@ const deleteWorkspace = asyncHandler(async (req, res) => {
 
     await Folder.deleteMany({ _id: { $in: folderIds } });
 
-    res.json({
+    res.status(200).json({
       status: "success",
       message: deletedWorkspace.name + " workspace deleted successfully!"
     })
@@ -243,7 +243,7 @@ const deleteFolder = asyncHandler(async (req, res) => {
       }
     )
 
-    res.json({
+    res.status(200).json({
       status: "success",
       message: deletedFolder.name + " folder deleted successfully!"
     })
@@ -267,14 +267,14 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res) => {
     const folders = await Folder.find({ workspace: workspaceID }).populate("files")
 
     if (folders.length > 0) {
-      res.json({
+      res.status(200).json({
         status: "success",
         message: "Folders fetched successfully",
         folders,
         workspaceName
       })
     } else {
-      res.json({
+      res.status(404).json({
         status: "error",
         message: "No folders found for this workspace.",
         workspaceName
@@ -313,7 +313,7 @@ const deleteFile = asyncHandler(async (req, res) => {
       }
     )
 
-    res.json({
+    res.status(200).json({
       status: "success",
       message: deletedFile.name + " file deleted successfully!"
     })
@@ -335,13 +335,13 @@ const getFilesByFolderID = asyncHandler(async (req, res) => {
     const files = await File.find({ folder: folderID })
 
     if (files.length > 0) {
-      res.json({
+      res.status(200).json({
         status: "success",
         message: "Files fetched successfully",
         files
       })
     } else {
-      res.json({
+      res.status(404).json({
         status: "error",
         message: "No files found for this folder."
       })
@@ -365,13 +365,13 @@ const getFileByID = asyncHandler(async (req, res) => {
     const file = await File.findById({ _id: fileID })
     // console.log(file);
     if (file) {
-      res.json({
+      res.status(200).json({
         status: "success",
         message: "File fetched successfully",
         file
       })
     } else {
-      res.json({
+      res.status(404).json({
         status: "error",
         message: "No file found."
       })
@@ -401,13 +401,20 @@ const saveCode = asyncHandler(async (req, res) => {
         }
       })
 
-      res.json({
+      res.status(200).json({
         status: "success",
         file: currFile
       })
 
     } catch (error) {
       console.log(error);
+
+      res.status(500).json({
+        status: "error",
+        file:"",
+        "message": "Error while saving code into database!",
+        "error": error
+      })
     }
   }
 })
@@ -423,6 +430,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     validateMongoDbId(workspaceID);
 
     const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
+
     if (!workspace) {
       return res.status(404).json({ status: "error", message: "Workspace not found or you don't have permission to share this workspace." });
     }
@@ -434,7 +442,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
 
 
     if (ownerUser.email === guestEmailID) {
-      return res.status(400).json({ status: "error", message: "Owner cannot add themselves as a collaborator." });
+      return res.status(403).json({ status: "error", message: "Owner cannot add themselves as a collaborator." });
     }
 
     const guestUser = await User.findOne({ email: guestEmailID });
@@ -444,7 +452,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
 
     const guestUserID = guestUser._id;
     if (workspace.sharedWith.includes(guestUserID)) {
-      return res.status(400).json({ status: "error", message: "User is already a collaborator in this workspace." });
+      return res.status(409).json({ status: "error", message: "User is already a collaborator in this workspace." });
     }
 
     const updatedWorkspace = await Workspace.findOneAndUpdate(
@@ -453,7 +461,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    const updatedGuest = await guestUser.updateOne(
+    await guestUser.updateOne(
       { $push: { sharedWithMe: workspaceID } },
       { new: true }
     );
@@ -462,7 +470,8 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
       return res.status(500).json({ status: "error", message: "Unable to share the workspace with the user!" });
     }
 
-    res.json({ status: "success", message: "Workspace shared successfully!", updatedWorkspace });
+    res.status(200).json({ status: "success", message: "Workspace shared successfully!", updatedWorkspace });
+
   } catch (error) {
     console.error("error occurred while sharing workspace:", error);
     res.status(500).json({
@@ -510,25 +519,26 @@ const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    const updatedGuest = await guestUser.updateOne(
+    await guestUser.updateOne(
       { $pull: { sharedWithMe: workspaceID } },
       { new: true }
     )
 
     if (!updatedWorkspace) {
-      return res.status(404).json({
+      return res.status(401).json({
         status: "error",
         message: "The user is not a collaborator in this workspace."
       });
     }
 
-    return res.json({
+    return res.status(200).json({
       status: "success",
       message: "Collaborator removed successfully!",
       updatedWorkspace
     });
   } catch (error) {
-    console.error("error occurred while removing collaborator from workspace:", error);
+    console.error("Error occurred while removing collaborator from workspace:", error);
+
     res.status(500).json({
       status: "error",
       message: "Unable to remove the collaborator from the workspace!",
@@ -549,13 +559,13 @@ const getCollaboratorByWorkspaceID = asyncHandler(async (req, res) => {
       });
 
     if (workspace) {
-      res.json({
+      res.status(200).json({
         status: "success",
         message: "Workspace fetched successfully",
         workspace,
       });
     } else {
-      res.json({ status: "error", message: "No workspace found." });
+      res.status(404).json({ status: "error", message: "No workspace found." });
     }
   } catch (error) {
     console.log(error);
@@ -573,13 +583,13 @@ const getSharedWorkspacedByUserID = asyncHandler(async (req, res) => {
     const user = await User.findById(userID).populate({ path: "sharedWithMe", select: 'name', })
 
     if (user) {
-      res.json({
+      res.status(200).json({
         status: "success",
         user,
         message: "User fetched successfully!"
       });
     } else {
-      res.json({ status: "error", message: "User not found." });
+      res.status(404).json({ status: "error", message: "User not found." });
     }
   } catch (error) {
     console.log(error);
