@@ -1,5 +1,21 @@
-# CodeCraftPro. - Collaborative Coding Enviroment
+# Code Craft Pro.
+
+## Introduction
+
+CodeCraftPro is a collaborative coding platform powered by Node.js, React.js, and Socket.IO. It enables real-time code editing and project management for software development teams. With features like user authentication, workspace management, and file sharing, it streamlines the coding process, allowing teams to work together seamlessly. Boost productivity and streamline collaboration with CodeCraftPro.
+
+## Tech-stack
+* Node.js
+* React.js
+* Socket.IO
+* Socket.IO-client
+* Mongoose
+* Express
+* MongoDB
+* Postman
+
 > Recommended to use Node v20.0 or higher
+
 Check your Node version by
 ```
 node -v
@@ -12,7 +28,7 @@ sudo snap install node --classic
 ## Project Setup
 1. Open terminal, run
 	```
-	git clone https://github.com/yashpra1010/code-craft-pro
+	git clone https://github.com/thatbackendguy/code-craft-pro
 	```
 2. Goto backend folder to install backend dependencies.
 	```
@@ -43,7 +59,7 @@ and copy and paste the below file into `.env` file and configure accordingly.
 	REACT_APP_BACKEND_URL=
 	```
 ## Backend Routes
-#### User Routes
+### User Routes
 
 | Sr. No.|Description| Request Type  | Endpoint  |
 |---|---|---|---|
@@ -53,7 +69,7 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |4|OTP Verification|POST|`/api/user/otp-verification`|
 5|Get User Metrics Data|GET|`/api/user/profile/:userID`|
 
-#### Editor Routes
+### Editor Routes
 
 | Sr. No.|Description| Request Type  | Endpoint  |
 |---|---|---|---|
@@ -78,4 +94,7 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |19|Get Collaborators by WorkspaceID|GET|`/api/workspace/share/:workspaceID`|
 |20|Get Shared Workspace By UserID|GET|`/api/workspace/shared-with-me/:userID`|
 
-> Note: Correctly check the PORT where frontend and backend server is running
+> Note: Correctly check the `PORT` where frontend and backend server is deployed
+
+## GitHub Repo
+<a href="https://github.com/thatbackendguy/code-craft-pro"><img src="https://opengraph.githubassets.com/42bc0c1d6fa18b25576ead8f49432f0ca77199d85e517dd6b2366d9d4e4ab955/thatbackendguy/code-craft-pro" width="50%"/></a>
