@@ -93,6 +93,9 @@ and copy and paste the below file into `.env` file and configure accordingly.
 |18|Remove Collaborator from Workspace|POST|`/api/workspace/share/delete/:workspaceID`|
 |19|Get Collaborators by WorkspaceID|GET|`/api/workspace/share/:workspaceID`|
 |20|Get Shared Workspace By UserID|GET|`/api/workspace/shared-with-me/:userID`|
+|21|Get Comments|GET|`/api/file/comment-get/:fileID`|
+|22|Add Comment|POST|`/api/file/comment-add`|
+|23|Resolve Comment|DELETE|`/api/file/comment-resolve/:commentID`|
 
 > Note: Correctly check the `PORT` where frontend and backend server is deployed
 
