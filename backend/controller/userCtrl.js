@@ -45,7 +45,7 @@ const createUser = asyncHandler(async (req, res) => {
 						<tbody>
 						  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 136px;">
 							<td class="masthead" style="margin: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; background: #030014; color: white; height: 136px;" align="center">
-							  <h1>💻 CodeCraftPro.</h1>
+							  <h1>👨🏻‍💻 CodeCraftPro.</h1>
 							</td>
 						  </tr>
 						  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 473px;">
@@ -117,9 +117,9 @@ const createUser = asyncHandler(async (req, res) => {
 
 		} catch (error) {
 			res.status(500).json({
-			status: "error",
-			message: error
-		});
+				status: "error",
+				message: error
+			});
 		}
 	} else {
 		res.status(409).json({
@@ -135,32 +135,40 @@ const loginUser = asyncHandler(async (req, res) => {
 
 	// check if user exists or not
 	const findUser = await User.findOne({ email });
-	if (findUser && (await findUser.isPasswordMatched(password))) {
-		const refreshToken = await generateRefreshToken(findUser?._id);
-		await User.findByIdAndUpdate(
-			findUser.id,
-			{
-				refreshToken: refreshToken,
-			},
-			{ new: true }
-		);
+	if (findUser) {
+		if (await findUser.isPasswordMatched(password)) {
+			const refreshToken = await generateRefreshToken(findUser?._id);
+			await User.findByIdAndUpdate(
+				findUser.id,
+				{
+					refreshToken: refreshToken,
+				},
+				{ new: true }
+			);
 
-		res.status(201).cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			maxAge: 72 * 60 * 60 * 1000, // 72 hours or 3 days
-		});
+			res.status(201).cookie("refreshToken", refreshToken, {
+				httpOnly: true,
+				maxAge: 72 * 60 * 60 * 1000, // 72 hours or 3 days
+			});
 
-		res.status(200).json({
-			_id: findUser?._id,
-			username: findUser?.username,
-			email: findUser?.email,
-			token: generateToken(findUser?._id),
-			status: "success",
-		});
-	} else {
-		res.status(401).json({
+			res.status(200).json({
+				_id: findUser?._id,
+				username: findUser?.username,
+				email: findUser?.email,
+				token: generateToken(findUser?._id),
+				status: "success",
+			});
+		} else {
+			res.status(401).json({
+				status: "error",
+				message: "Invalid Credentials!"
+			});
+		}
+	}
+	else {
+		res.status(404).json({
 			status: "error",
-			message: "Invalid Credentials!"
+			message: "User not found!"
 		});
 	}
 });
@@ -207,7 +215,7 @@ const otpVerification = asyncHandler(async (req, res) => {
 		if (user.otp.toString() === req.body.otp.toString()) {
 			user.isVerfied = true
 			user.otp = ""
-			
+
 			await user.save()
 
 			res.status(200).json({
@@ -239,15 +247,15 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 	validateMongoDbId(userID);
 	try {
-		
-		const currUser = await User.findById(userID, {username:1, name:1,_id:0});
+
+		const currUser = await User.findById(userID, { username: 1, name: 1, _id: 0 });
 
 		const workspaceCount = await Workspace.countDocuments({ owner: userID })
 
 		const folderCount = await Folder.countDocuments({ owner: userID })
 
 		const files = await File.find({ owner: userID })
-		
+
 		const fileCount = files.length;
 		if (fileCount > 0) {
 			files.forEach(f => {
@@ -255,13 +263,13 @@ const getUserProfile = asyncHandler(async (req, res) => {
 			})
 		}
 
-		res.status(200).json({ 
-			status:"success",
+		res.status(200).json({
+			status: "success",
 			"user": currUser,
 			workspaceCount,
-			folderCount, 
-			fileCount, 
-			totalLoc, 
+			folderCount,
+			fileCount,
+			totalLoc,
 		})
 	} catch (error) {
 		res.status(500).json({

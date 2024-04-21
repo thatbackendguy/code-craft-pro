@@ -14,7 +14,10 @@ const {
 	addCollaboratorToWorkspace,
 	removeCollaboratorFromWorkspace,
 	getCollaboratorByWorkspaceID,
-	getSharedWorkspacedByUserID
+	getSharedWorkspacedByUserID,
+	addComment,
+	resolveComment,
+	getComments
 } = require("../controller/editorCtrl");
 
 //initializing router
@@ -41,5 +44,9 @@ router.post("/file/get/", getFileByID)
 router.delete("/file/delete/:fileID", deleteFile)
 router.put("/file/save-code/", saveCode)
 
+// APIs for Comment
+router.get("/file/comment-get/:fileID",getComments)
+router.post("/file/comment-add",addComment)
+router.delete("/file/comment-resolve/:commentID",resolveComment)
 
 module.exports = router;

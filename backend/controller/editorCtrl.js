@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const Workspace = require("../models/workspaceModel");
 const Folder = require("../models/folderModel");
 const File = require("../models/fileModel");
+const Comment = require("../models/commentModel");
+const { sendEmail } = require("./emailCtrl");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 
@@ -218,8 +220,6 @@ const deleteWorkspace = asyncHandler(async (req, res) => {
     })
   }
 })
-
-
 
 // Delete Folder - DELETE
 const deleteFolder = asyncHandler(async (req, res) => {
@@ -573,7 +573,6 @@ const getCollaboratorByWorkspaceID = asyncHandler(async (req, res) => {
   }
 });
 
-
 const getSharedWorkspacedByUserID = asyncHandler(async (req, res) => {
   const userID = req.params.userID;
 
@@ -597,6 +596,270 @@ const getSharedWorkspacedByUserID = asyncHandler(async (req, res) => {
   }
 })
 
+// POST - Add comment
+const addComment = asyncHandler(async (req, res) => {
+  let ownerUserName = ""
+  const userID = req.body.userID;
+  const commentMessage = req.body.message;
+  const fileID = req.body.fileID;
+
+  // Validate user and file IDs
+  validateMongoDbId(userID);
+  validateMongoDbId(fileID);
+
+  try {
+    // Find the user's email using the userID
+    const senderUser = await User.findById(userID);
+    if (!senderUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      });
+    }
+
+    const commentAddedBy = senderUser.name;
+
+    // Find the file name using the fileID
+    const file = await File.findById(fileID);
+    if (!file) {
+      return res.status(404).json({
+        status: "error",
+        message: "File not found"
+      });
+    }
+    const fileName = file.name;
+ 
+    const fileOwnerID = file.owner;
+
+    // get owner of file
+    const ownerUser = await User.findById(fileOwnerID);
+
+    if (!senderUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      });
+    } else {
+      ownerUserName = ownerUser.name;
+    }
+
+    // Create the comment
+    const newComment = await Comment.create({
+      user: userID,
+      fileID: fileID,
+      message: commentMessage
+    });
+
+    try {
+      const payload = `<table class="body-wrap" style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; height: 100%; background: #efefef; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important;">
+      <tbody>
+        <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+          <td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;">
+            <!-- Message start -->
+            <table style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100%; height: 200px;">
+              <tbody>
+                <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 136px;">
+                  <td class="masthead" style="margin: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; background: #030014; color: white; height: 136px;" align="center">
+                    <h1>👨🏻‍💻 CodeCraftPro.</h1>
+                  </td>
+                </tr>
+                <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 473px;">
+                  <td class="content" style="margin: 0px; padding: 30px 35px; font-size: 100%; line-height: 1.65; background: #030014; height: 473px;">
+                    <h2 style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 28px; line-height: 1.25;">
+                      <span style="color: #b6b2ff;">Hi ${ownerUserName} 👋,</span>
+                    </h2>
+                    <p>
+                      <span style="color: #b6b2ff;">A new comment has been added to the file <strong>${fileName}</strong> by <strong>${commentAddedBy}</strong>.</span>
+                    </p>
+                    <p>
+                      <span style="color: #b6b2ff;">Here's the comment:</span>
+                    </p>
+                    <blockquote style="margin: 0 0 20px; padding: 0 0 0 15px; border-left: 5px solid #7000FF;">
+                      <span style="color: #b6b2ff;">${commentMessage}</span>
+                    </blockquote>
+                    <p style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 16px; line-height: 1.65; font-weight: normal;">
+                      <span style="color: #b6b2ff;">
+                        <em style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">– Team CodeCraftPro.</em>
+                      </span>
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+          <td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;">
+            <span style="color: #b6b2ff;"><!-- Message start --></span>
+            <table style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100% !important;">
+              <tbody>
+                <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+                  <td class="content footer" style="margin: 0; padding: 30px 35px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; background: none;" align="center">&copy; CodeCraftPro, ${new Date().getFullYear()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    `;
+      const data = {
+        to: ownerUser.email,
+        text: `New Comment Added by ${commentAddedBy}`,
+        subject: "New Comment Added",
+        htm: payload,
+      };
+
+      sendEmail(data);
+
+    } catch (error) {
+      throw new Error(error);
+    }
+
+    // Send success response
+    res.status(201).json({
+      status: "success",
+      message: "Comment added successfully!",
+      comment: newComment,
+    });
+  } catch (error) {
+    // Send error response
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to add comment",
+      error: error
+    });
+  }
+});
+
+const resolveComment = asyncHandler(async (req, res) => {
+  const commentID = req.params.commentID;
+
+  // Validate comment ID
+  validateMongoDbId(commentID);
+
+  try {
+    // Find the comment
+    const comment = await Comment.findById(commentID).populate('user').populate('fileID');
+    if (!comment) {
+      return res.status(404).json({
+        status: "error",
+        message: "Comment not found"
+      });
+    }
+
+    // Remove the comment
+    await Comment.findOneAndDelete({_id:commentID});
+
+    // Send an email to notify that the comment has been resolved
+    const payload = `
+      <table class="body-wrap" style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; height: 100%; background: #efefef; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important;">
+        <tbody>
+          <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+            <td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;">
+              <!-- Message start -->
+              <table style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100%; height: 200px;">
+                <tbody>
+                  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 136px;">
+                    <td class="masthead" style="margin: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; background: #030014; color: white; height: 136px;" align="center">
+                      <h1>👨🏻‍💻 CodeCraftPro.</h1>
+                    </td>
+                  </tr>
+                  <tr style="margin: 0px; padding: 0px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; line-height: 1.65; height: 473px;">
+                    <td class="content" style="margin: 0px; padding: 30px 35px; font-size: 100%; line-height: 1.65; background: #030014; height: 473px;">
+                      <h2 style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 28px; line-height: 1.25;">
+                        <span style="color: #b6b2ff;">Hi ${comment.user.name} 👋,</span>
+                      </h2>
+                      <p>
+                        <span style="color: #b6b2ff;">The comment you added on the file <strong>${comment.fileID.name}</strong> has been resolved.</span>
+                      </p>
+                      <p style="font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif; margin: 0px 0px 20px; padding: 0px; font-size: 16px; line-height: 1.65; font-weight: normal;">
+                        <span style="color: #b6b2ff;">
+                          <em style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">– Team CodeCraftPro.</em>
+                        </span>
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+            <td class="container" style="margin: 0 auto !important; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; display: block !important; clear: both !important; max-width: 580px !important;">
+              <span style="color: #b6b2ff;"><!-- Message start --></span>
+              <table style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; border-collapse: collapse; width: 100% !important;">
+                <tbody>
+                  <tr style="margin: 0; padding: 0; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65;">
+                    <td class="content footer" style="margin: 0; padding: 30px 35px; font-size: 100%; font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; line-height: 1.65; background: none;" align="center">&copy; CodeCraftPro, ${new Date().getFullYear()}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    const data = {
+      to: comment.user.email,
+      text: `Your comment on ${comment.fileID.name} has been resolved`,
+      subject: "Comment Resolved",
+      htm: payload,
+    };
+
+    sendEmail(data);
+
+    // Send success response
+    res.status(200).json({
+      status: "success",
+      message: "Comment removed successfully!",
+    });
+  } catch (error) {
+    // Send error response
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to remove comment",
+      error: error
+    });
+  }
+});
+
+// Get Comments by FileID - GET
+const getComments = asyncHandler(async (req, res) => {
+  const fileID = req.params.fileID
+
+  try {
+    const comments = await Comment.find({ fileID: fileID })
+  .populate({
+    path: "user",
+    select: "name email",
+  });
+
+
+    if (comments.length > 0) {
+      res.status(200).json({
+        status: "success",
+        message: "Comments fetched successfully",
+        comments
+      })
+    } else {
+      res.status(404).json({
+        status: "error",
+        message: "No comments found for this file.",
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      error
+    })
+  }
+
+})
+
+
 module.exports = {
   addWorkspace,
   getWorkspacesByUserID,
@@ -612,5 +875,8 @@ module.exports = {
   addCollaboratorToWorkspace,
   removeCollaboratorFromWorkspace,
   getCollaboratorByWorkspaceID,
-  getSharedWorkspacedByUserID
+  getSharedWorkspacedByUserID,
+  addComment,
+  resolveComment,
+  getComments
 };
