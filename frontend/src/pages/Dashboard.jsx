@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
-import { IoTrashBinOutline } from "react-icons/io5";
+import { MdDeleteOutline } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { LuUserPlus2 } from "react-icons/lu";
 import { RxCross2 } from "react-icons/rx";
 import Avatar from "react-avatar";
 import Loader from "../components/Loader";
-
+import { FaPlus } from "react-icons/fa";
+import { Tooltip } from "antd";
 const Dashboard = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -98,6 +99,7 @@ const Dashboard = () => {
       const res = await response.json();
 // console.log(res);
       if (res.status === "success") {
+        toast.success(res.message);
         setLoading(false);
         getWorkspaces();
       }
@@ -186,12 +188,14 @@ const Dashboard = () => {
         <div className="px-12 flex justify-between w-full">
           <div></div>
           <div className="items-center flex">
+            <Tooltip title="Add Workspace">
             <button
-              className="bg-blue-500 px-4 py-2 rounded-md text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="bg-blue-500 p-5 rounded-full text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 z-[100] bottom-10 right-10 fixed"
               onClick={openModal}
             >
-              + Add Workspace
+              <FaPlus className="text-2xl"/>
             </button>
+              </Tooltip>
           </div>
         </div>
       </div>
@@ -202,7 +206,7 @@ const Dashboard = () => {
           {workspace?.map((item, index) => (
             <div
               key={index}
-              className="p-4 border border-gray-200 rounded-md shadow-lg hover:shadow-xl transition duration-300 ease-in-out"
+              className="p-4 rounded-[30px]  bg-[#f3f3f3] p-6"
             >
               <div className="flex justify-between items-center">
                 <h1 className="text-xl font-semibold">{item.name}</h1>
@@ -212,22 +216,22 @@ const Dashboard = () => {
                     deleteWorkspace(item._id);
                   }}
                 >
-                  <IoTrashBinOutline />
+                  <MdDeleteOutline className="text-2xl mr-[3px]"/>
                 </h1>
               </div>
 
               <div className="flex items-center justify-between w-full">
                 <Link to={`/editor/${item._id}`}>
-                  <button className="px-4 mt-4 py-2 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">
-                    Open Workspace
+                  <button className="px-6 mt-4 py-2 bg-green-500 text-white rounded-full text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">
+                    Open
                   </button>
                 </Link>
 
                 <h1
-                  className="bg-blue-500 text-white rounded-md p-2 mt-4 hover:bg-blue-600 hover:cursor-pointer"
+                  className=" text-blue-500 rounded-full mt-4 hover:cursor-pointer"
                   onClick={() => openShareModal(item._id)}
                 >
-                  <LuUserPlus2 />
+                  <LuUserPlus2 className="text-2xl" />
                 </h1>
               </div>
             </div>
@@ -302,8 +306,8 @@ const Dashboard = () => {
                         <div className="flex items-center">
                           <h1 className="text-gray-500 pr-3 ">{item.email}</h1>
 
-                          <IoTrashBinOutline
-                            className="hover:cursor-pointer text-red-500"
+                          <MdDeleteOutline
+                            className="hover:cursor-pointer text-xl text-red-500"
                             onClick={() =>
                               removeFromSharedWorkspace(item.email)
                             }

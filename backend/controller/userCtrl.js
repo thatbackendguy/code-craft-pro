@@ -153,8 +153,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 			res.status(200).json({
 				_id: findUser?._id,
-				username: findUser?.username,
-				email: findUser?.email,
+				name: findUser?.name,
 				token: generateToken(findUser?._id),
 				status: "success",
 			});
@@ -171,39 +170,6 @@ const loginUser = asyncHandler(async (req, res) => {
 			message: "User not found!"
 		});
 	}
-});
-
-// logout
-const logout = asyncHandler(async (req, res) => {
-	const cookie = req.cookies;
-	const refreshToken = cookie?.refreshToken;
-
-	if (!refreshToken) throw new Error("No Refresh Token in Cookies");
-
-	const user = await User.findOne({ refreshToken });
-
-	if (!user) {
-		res.clearCookie("refreshToken", {
-			httpOnly: true,
-			secure: true,
-		});
-		return res.json({
-			message: "Logout Successful!"
-		});; // forbidden
-	}
-
-	await User.findOneAndUpdate({ refreshToken }, {
-		refreshToken: "",
-	});
-
-	res.status(200).clearCookie("refreshToken", {
-		httpOnly: true,
-		secure: true,
-	});
-
-	res.status(200).json({
-		message: "Logout Successful!"
-	}); // forbidden
 });
 
 // otp verification
@@ -252,15 +218,22 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 		const workspaceCount = await Workspace.countDocuments({ owner: userID })
 
-		const folderCount = await Folder.countDocuments({ owner: userID })
+		const folders = await Folder.find({ owner: userID },{files:1,name:1,_id:0})
 
 		const files = await File.find({ owner: userID })
 
 		const fileCount = files.length;
+
+		const folderCount = folders.length;
+
+		let lines = {};
+
 		if (fileCount > 0) {
-			files.forEach(f => {
-				totalLoc += (f.data?.split("\n")).length;
-			})
+			files.forEach(file => {
+				totalLoc += (file.data?.split("\n")).length;
+				const lineCount = (file.data?.split("\n")).length;
+				lines[file.name] = lineCount;
+			});
 		}
 
 		res.status(200).json({
@@ -270,8 +243,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
 			folderCount,
 			fileCount,
 			totalLoc,
+			lines,
+			folders
 		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status: "error",
 			message: error
@@ -282,7 +258,6 @@ const getUserProfile = asyncHandler(async (req, res) => {
 module.exports = {
 	createUser,
 	loginUser,
-	logout,
 	otpVerification,
 	getUserProfile
 };

@@ -94,7 +94,7 @@ const SharedDashboard = () => {
           {workspace?.map((item, index) => (
             <div
               key={index}
-              className="p-4 border border-gray-200 rounded-md shadow-lg hover:shadow-xl transition duration-300 ease-in-out"
+              className="p-4 rounded-[30px] bg-[#f3f3f3] p-6"
             >
               <div className="flex justify-between items-center">
                 <h1 className="text-xl font-semibold">{item.name}</h1>
@@ -102,16 +102,16 @@ const SharedDashboard = () => {
 
               <div className="flex items-center justify-between w-full">
                 <Link to={`/editor/${item._id}`}>
-                  <button className="px-4 mt-4 py-2 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">
-                    Open Workspace
+                  <button className="px-6 mt-4 py-2 bg-green-500 text-white rounded-full text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">
+                    Open
                   </button>
                 </Link>
 
                 <h1
-                  className="bg-blue-500 text-white rounded-md p-2 mt-4 hover:bg-blue-600 hover:cursor-pointer"
+                  className="text-blue-500 rounded-full mt-4 hover:cursor-pointer"
                   onClick={() => openShareModal(item._id)}
                 >
-                  <LuUsers2 />
+                  <LuUsers2 className="text-2xl"/>
                 </h1>
               </div>
             </div>

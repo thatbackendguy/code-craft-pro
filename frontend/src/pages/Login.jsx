@@ -25,6 +25,7 @@ export default function LoginPage() {
       if (response.data.status === "success") {
         localStorage.setItem("token", response.data?.token);
         localStorage.setItem("userID", response.data?._id);
+        localStorage.setItem("userName", response.data?.name);
 
         console.log("Login success", response.data);
         toast.success("Login success");

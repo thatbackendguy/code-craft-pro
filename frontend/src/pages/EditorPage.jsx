@@ -1,18 +1,27 @@
 import io from "socket.io-client";
-
+import { MdDeleteOutline } from "react-icons/md";
 import React, { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import Navbar from "../components/Navbar";
-
-import { Layout, Menu as AntMenu, theme, Modal, Input, Button } from "antd";
+import { AiOutlineComment } from "react-icons/ai";
+import {
+  Layout,
+  Menu as AntMenu,
+  theme,
+  Modal,
+  Input,
+  Button,
+  Badge,
+  Tooltip
+} from "antd";
 
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
-import { IoTrashBinOutline } from "react-icons/io5";
-import Loader from "../components/Loader"
+
+import Loader from "../components/Loader";
 import CommentModal from "../components/CommentModal";
-import {toast,Toaster} from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 const { Content, Sider } = Layout;
 
 // for socket.io
@@ -47,12 +56,11 @@ const EditorPage = () => {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setLoading] = useState(true)
-  const [commentModal, setCommentModal] = useState(false)
-  const [comments, setComments] = useState()
-  const [userComment, setUserComment] = useState()
-  const [commentLoading, setCommentLoading] = useState(false)
-
+  const [isLoading, setLoading] = useState(true);
+  const [commentModal, setCommentModal] = useState(false);
+  const [comments, setComments] = useState();
+  const [userComment, setUserComment] = useState();
+  const [commentLoading, setCommentLoading] = useState(false);
 
   // CODE
   const getFoldersFromServer = async () => {
@@ -66,7 +74,7 @@ const EditorPage = () => {
       );
       const res = await response.json();
 
-      setLoading(false)
+      setLoading(false);
       setWorkspaceName(res.workspaceName);
       setData(res.folders);
     } catch (error) {
@@ -146,63 +154,61 @@ const EditorPage = () => {
   }
 
   const getComments = async () => {
-    setCommentLoading(true)
+    setCommentLoading(true);
     try {
-      const response = await axios.get(BACKEND_URL + `/api/file/comment-get/${selectedFileId}`);
-      console.log(response.data)
+      const response = await axios.get(
+        BACKEND_URL + `/api/file/comment-get/${selectedFileId}`
+      );
+      console.log(response.data);
       const res = await response;
       if (response.data.status === "success") {
         setComments(res.data.comments);
-      }
-      else {
-        setComments([])
+      } else {
+        setComments([]);
       }
     } catch (error) {
       console.log(error);
-      setComments([])
+      setComments([]);
     }
-    setCommentLoading(false)
-  }
+    setCommentLoading(false);
+  };
 
   const addComment = async (comment) => {
     try {
       const response = await axios.post(BACKEND_URL + `/api/file/comment-add`, {
         message: comment,
         fileID: selectedFileId,
-        userID: localStorage.getItem("userID")
+        userID: localStorage.getItem("userID"),
       });
-      if(response.data.status === "success")
-      {
+      if (response.data.status === "success") {
         // console.log(response.data)
         toast.success(response.data.message);
         getComments();
-      }
-      else {
+      } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const resolveComment = async (commentID) => {
     try {
-      const response = await axios.delete(BACKEND_URL + `/api/file/comment-resolve/${commentID}`);
+      const response = await axios.delete(
+        BACKEND_URL + `/api/file/comment-resolve/${commentID}`
+      );
 
-      if(response.data.status === "success")
-      {
+      if (response.data.status === "success") {
         // console.log(response.data)
         toast.success(response.data.message);
         getComments();
-      }
-      else {
+      } else {
         toast.error(response.data.message);
       }
-
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const saveFileData = async () => {
     try {
@@ -213,7 +219,9 @@ const EditorPage = () => {
             fileID: selectedFileId,
             data: code,
           });
-          if (res.data.status === "success") { setLoading(false) }
+          if (res.data.status === "success") {
+            setLoading(false);
+          }
         }
       } catch (error) {
         console.error("error saving code to backend:", error);
@@ -230,9 +238,10 @@ const EditorPage = () => {
       });
       const res = await response.json();
       // console.log(res);
-      setLoading(false)
+      setLoading(false);
 
       if (res.status === "success") {
+        toast.success(res.message);
         getFoldersFromServer();
       }
     } catch (error) {
@@ -262,7 +271,7 @@ const EditorPage = () => {
               >
                 <VscFile className="mr-2" /> {file.name}
               </h1>
-              <IoTrashBinOutline onClick={() => deleteCurrFile(file._id)} />
+              <MdDeleteOutline className="text-lg text-red-400" onClick={() => deleteCurrFile(file._id)} />
             </div>
           ),
         };
@@ -293,7 +302,7 @@ const EditorPage = () => {
       );
 
       const res = await response.json();
-      setLoading(false)
+      setLoading(false);
       const userID = localStorage.getItem("userID");
 
       const isOwner = res.workspace.owner === userID;
@@ -330,16 +339,18 @@ const EditorPage = () => {
     getSharedWorkspaces();
   }, []);
 
+useEffect(()=>{
+  getComments();
+}, [selectedFileId])
 
   const showCommentModal = () => {
-    setComments([])
+    setComments([]);
     getComments();
-    setCommentModal(true)
-  }
+    setCommentModal(true);
+  };
   // useEffect for socket
   useEffect(() => {
     socket.on("receive_user_code", (data) => {
-
       setCode(data.userCode);
     });
   }, [socket]);
@@ -359,10 +370,11 @@ const EditorPage = () => {
           userID: localStorage.getItem("userID"),
         }
       );
-      setLoading(false)
+      setLoading(false);
       if (response?.data?.status === "success") {
+        toast.success(response?.data?.message);
         getFoldersFromServer();
-        formData.name = ""
+        formData.name = "";
       }
     } catch (error) {
       console.log(error);
@@ -385,10 +397,11 @@ const EditorPage = () => {
           workspaceID: workspaceID,
         }
       );
-      setLoading(false)
+      setLoading(false);
       if (response?.data?.status === "success") {
+        toast.success(response?.data?.message);
         getFoldersFromServer();
-        formData.name = ""
+        formData.name = "";
       }
     } catch (error) {
       console.log(error);
@@ -400,93 +413,115 @@ const EditorPage = () => {
   return (
     <Layout className="min-h-screen">
       <Navbar />
-      <Toaster/>
+      <Toaster />
 
-      {isLoading ? <Loader /> : !isAuthenticated ? (
+      {isLoading ? (
+        <Loader />
+      ) : !isAuthenticated ? (
         <h1 className="min-h-[80vh] w-full flex justify-center items-center text-3xl">
           Not Authorized! ⛔️
         </h1>
-      ) : (<>
-        {selectedFileId && <button className="bg-blue-500 rounded-full px-4 py-2 text-white inline-block w-[100px] ml-auto my-2 mr-6"
-          onClick={showCommentModal}>Comment</button>}
-        <CommentModal visible={commentModal} setVisible={setCommentModal}
-          setUserComment={setUserComment} addComment={addComment} comments={comments}
-          resolveComment={resolveComment} commentLoading={commentLoading}
-        />
+      ) : (
+        <>
+          {selectedFileId && (
+            <div className="ml-auto fixed bottom-5  z-[100] right-4">
+              <Badge count={comments && comments.length} className="mb-[-40px] w-6"/>
+<Tooltip title="Open comments"  placement="leftTop">
 
-        <Layout className="pt-5">
-          <Sider
-            width={250}
-            style={{ background: colorBgContainer }}
-            className="rounded-md"
-          >
-            <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
-              <h1>{workspaceName}</h1>
-              <h1 className="flex items-center">
-                <button
-                  disabled={selectedFolderId === null}
-                  className={
-                    selectedFolderId === null
-                      ? `hover:cursor-not-allowed`
-                      : `hover:cursor-pointer`
-                  }
-                >
-                  <VscNewFile onClick={handleAddFile} />
-                </button>
-
-                <VscNewFolder
-                  className={`hover:cursor-pointer ml-2`}
-                  onClick={handleAddFolder}
-                />
-              </h1>
+              <button
+                className="bg-blue-500 rounded-full px-4 py-4 text-white inline-block w-[50] ml-auto my-2 mr-12 flex items-center justify-center"
+                onClick={showCommentModal}
+              >
+                <AiOutlineComment className="text-4xl"/>
+              </button>
+              </Tooltip>
             </div>
-            {data?.length > 0 ? (
-              <AntMenu
-                mode="inline"
-                defaultSelectedKeys={["1"]}
-                defaultOpenKeys={["sub1"]}
-                style={{ height: "100%", borderRight: 0 }}
-                items={items2}
-              />
-            ) : (
-              <div className="w-full h-full rounded-md">
-                <div className="w-full h-full grid items-center justify-center">
-                  <h1>No Folders</h1>
-                </div>
-              </div>
-            )}
-          </Sider>
-          <Layout style={{ padding: "0 24px 24px" }}>
-            <Content
-              style={{
-                padding: 24,
-                margin: 0,
-                background: colorBgContainer,
-                borderRadius: borderRadiusLG,
-              }}
+          )}
+          <CommentModal
+            visible={commentModal}
+            setVisible={setCommentModal}
+            setUserComment={setUserComment}
+            addComment={addComment}
+            comments={comments}
+            resolveComment={resolveComment}
+            commentLoading={commentLoading}
+          />
+
+          <Layout className="pt-5">
+            <Sider
+              width={250}
+              style={{ background: colorBgContainer }}
+              className="rounded-md"
             >
-              {code.length > 0 ? (
-                <Editor
-                  height="80vh"
-                  width="100%"
-                  theme="vs-dark"
-                  language={language}
-                  onChange={getEditorValue}
-                  value={code}
-                  onMount={handledEditorDidMount}
-                  options={{
-                    fontSize: "20px",
-                    wordWrap: true,
-                    renderLineHighlight: true,
-                  }}
+              <div className="w-full flex justify-between items-center p-4 bg-gray-200 rounded-md">
+                <h1>{workspaceName}</h1>
+                <h1 className="flex items-center">
+                  <button
+                    disabled={selectedFolderId === null}
+                    className={
+                      selectedFolderId === null
+                        ? `hover:cursor-not-allowed`
+                        : `hover:cursor-pointer`
+                    }
+                  >
+                    <VscNewFile onClick={handleAddFile} />
+                  </button>
+
+                  <VscNewFolder
+                    className={`hover:cursor-pointer ml-2`}
+                    onClick={handleAddFolder}
+                  />
+                </h1>
+              </div>
+              {data?.length > 0 ? (
+                <AntMenu
+                  mode="inline"
+                  defaultSelectedKeys={["1"]}
+                  defaultOpenKeys={["sub1"]}
+                  style={{ height: "100%", borderRight: 0 }}
+                  items={items2}
                 />
               ) : (
-                <h1 className="grid items-center justify-center w-full min-h-[87vh]">Choose a file to start editing</h1>
+                <div className="w-full h-full rounded-md">
+                  <div className="w-full h-full grid items-center justify-center">
+                    <h1>No Folders</h1>
+                  </div>
+                </div>
               )}
-            </Content>
+            </Sider>
+            <Layout style={{ padding: "0 24px 24px" }}>
+              <Content
+                style={{
+                  padding: 24,
+                  margin: 0,
+                  background: colorBgContainer,
+                  borderRadius: borderRadiusLG,
+                }}
+              >
+                {code.length > 0 ? (
+                  <Editor
+                    height="80vh"
+                    width="100%"
+                    theme="vs-dark"
+                    language={language}
+                    onChange={getEditorValue}
+                    value={code}
+                    onMount={handledEditorDidMount}
+                    options={{
+                      fontSize: "20px",
+                      wordWrap: true,
+                      renderLineHighlight: true,
+                    }}
+                  />
+                ) : (
+                  <h1 className="grid items-center justify-center w-full min-h-[87vh]">
+                    Choose a file to start editing
+                  </h1>
+                )}
+              </Content>
+            </Layout>
           </Layout>
-        </Layout>
-      </>
+        </>
       )}
       <Modal
         title="Add Folder"
