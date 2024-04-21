@@ -11,6 +11,8 @@ import { useLocation } from "react-router-dom";
 import { VscNewFolder, VscFolder, VscNewFile, VscFile } from "react-icons/vsc";
 import { IoTrashBinOutline } from "react-icons/io5";
 import Loader from "../components/Loader"
+import CommentModal from "../components/CommentModal";
+import {toast,Toaster} from "react-hot-toast";
 const { Content, Sider } = Layout;
 
 // for socket.io
@@ -46,6 +48,11 @@ const EditorPage = () => {
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setLoading] = useState(true)
+  const [commentModal, setCommentModal] = useState(false)
+  const [comments, setComments] = useState()
+  const [userComment, setUserComment] = useState()
+  const [commentLoading, setCommentLoading] = useState(false)
+
 
   // CODE
   const getFoldersFromServer = async () => {
@@ -138,6 +145,65 @@ const EditorPage = () => {
     return fileName.slice(lastDotIndex + 1).toLowerCase();
   }
 
+  const getComments = async () => {
+    setCommentLoading(true)
+    try {
+      const response = await axios.get(BACKEND_URL + `/api/file/comment-get/${selectedFileId}`);
+      console.log(response.data)
+      const res = await response;
+      if (response.data.status === "success") {
+        setComments(res.data.comments);
+      }
+      else {
+        setComments([])
+      }
+    } catch (error) {
+      console.log(error);
+      setComments([])
+    }
+    setCommentLoading(false)
+  }
+
+  const addComment = async (comment) => {
+    try {
+      const response = await axios.post(BACKEND_URL + `/api/file/comment-add`, {
+        message: comment,
+        fileID: selectedFileId,
+        userID: localStorage.getItem("userID")
+      });
+      if(response.data.status === "success")
+      {
+        // console.log(response.data)
+        toast.success(response.data.message);
+        getComments();
+      }
+      else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const resolveComment = async (commentID) => {
+    try {
+      const response = await axios.delete(BACKEND_URL + `/api/file/comment-resolve/${commentID}`);
+
+      if(response.data.status === "success")
+      {
+        // console.log(response.data)
+        toast.success(response.data.message);
+        getComments();
+      }
+      else {
+        toast.error(response.data.message);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const saveFileData = async () => {
     try {
       socket.emit("send_user_code", { userCode: code, fileID: selectedFileId });
@@ -147,8 +213,7 @@ const EditorPage = () => {
             fileID: selectedFileId,
             data: code,
           });
-          if(res.data.status === "success")
-          {setLoading(false)}
+          if (res.data.status === "success") { setLoading(false) }
         }
       } catch (error) {
         console.error("error saving code to backend:", error);
@@ -265,6 +330,12 @@ const EditorPage = () => {
     getSharedWorkspaces();
   }, []);
 
+
+  const showCommentModal = () => {
+    setComments([])
+    getComments();
+    setCommentModal(true)
+  }
   // useEffect for socket
   useEffect(() => {
     socket.on("receive_user_code", (data) => {
@@ -291,6 +362,7 @@ const EditorPage = () => {
       setLoading(false)
       if (response?.data?.status === "success") {
         getFoldersFromServer();
+        formData.name = ""
       }
     } catch (error) {
       console.log(error);
@@ -316,6 +388,7 @@ const EditorPage = () => {
       setLoading(false)
       if (response?.data?.status === "success") {
         getFoldersFromServer();
+        formData.name = ""
       }
     } catch (error) {
       console.log(error);
@@ -327,12 +400,20 @@ const EditorPage = () => {
   return (
     <Layout className="min-h-screen">
       <Navbar />
+      <Toaster/>
 
-      {isLoading ? <Loader/> :!isAuthenticated ? (
+      {isLoading ? <Loader /> : !isAuthenticated ? (
         <h1 className="min-h-[80vh] w-full flex justify-center items-center text-3xl">
           Not Authorized! ⛔️
         </h1>
-      ) : (
+      ) : (<>
+        {selectedFileId && <button className="bg-blue-500 rounded-full px-4 py-2 text-white inline-block w-[100px] ml-auto my-2 mr-6"
+          onClick={showCommentModal}>Comment</button>}
+        <CommentModal visible={commentModal} setVisible={setCommentModal}
+          setUserComment={setUserComment} addComment={addComment} comments={comments}
+          resolveComment={resolveComment} commentLoading={commentLoading}
+        />
+
         <Layout className="pt-5">
           <Sider
             width={250}
@@ -405,6 +486,7 @@ const EditorPage = () => {
             </Content>
           </Layout>
         </Layout>
+      </>
       )}
       <Modal
         title="Add Folder"

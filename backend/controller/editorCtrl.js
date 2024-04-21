@@ -31,7 +31,7 @@ const addFolder = asyncHandler(async (req, res) => {
   }
 
   if (!findWorkspace) {
-    return res.status(404).json({
+    return res.json({
       status: "error",
       message: "Workspace not found.",
     });
@@ -56,7 +56,7 @@ const addFolder = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "error", message: error });
+    res.json({ status: "error", message: error });
   }
 });
 
@@ -92,7 +92,7 @@ const addWorkspace = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "error", message: error });
+    res.json({ status: "error", message: error });
   }
 });
 
@@ -122,7 +122,7 @@ const addFile = asyncHandler(async (req, res) => {
   }
 
   if (!findFolder) {
-    return res.status(404).json({
+    return res.json({
       status: "error",
       message: "Folder not found.",
     });
@@ -149,7 +149,7 @@ const addFile = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "error", message: error });
+    res.json({ status: "error", message: error });
   }
 });
 
@@ -167,7 +167,7 @@ const getWorkspacesByUserID = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error);
 
-    res.status(500).json({
+    res.json({
       status: "error",
       message: error
     })
@@ -214,7 +214,7 @@ const deleteWorkspace = asyncHandler(async (req, res) => {
     })
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: error
     })
@@ -249,7 +249,7 @@ const deleteFolder = asyncHandler(async (req, res) => {
     })
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: error
     })
@@ -274,7 +274,7 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res) => {
         workspaceName
       })
     } else {
-      res.status(404).json({
+      res.json({
         status: "error",
         message: "No folders found for this workspace.",
         workspaceName
@@ -282,9 +282,10 @@ const getFoldersByWorkspaceID = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
-      error
+      error,
+      message: "Internal Server Error!"
     })
   }
 
@@ -319,7 +320,7 @@ const deleteFile = asyncHandler(async (req, res) => {
     })
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: error
     })
@@ -341,16 +342,17 @@ const getFilesByFolderID = asyncHandler(async (req, res) => {
         files
       })
     } else {
-      res.status(404).json({
+      res.json({
         status: "error",
         message: "No files found for this folder."
       })
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
-      error
+      error,
+      message: "Internal Server Error!"
     })
   }
 
@@ -371,14 +373,14 @@ const getFileByID = asyncHandler(async (req, res) => {
         file
       })
     } else {
-      res.status(404).json({
+      res.json({
         status: "error",
         message: "No file found."
       })
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       error
     })
@@ -409,7 +411,7 @@ const saveCode = asyncHandler(async (req, res) => {
     } catch (error) {
       console.log(error);
 
-      res.status(500).json({
+      res.json({
         status: "error",
         file:"",
         "message": "Error while saving code into database!",
@@ -432,12 +434,12 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
 
     if (!workspace) {
-      return res.status(404).json({ status: "error", message: "Workspace not found or you don't have permission to share this workspace." });
+      return res.json({ status: "error", message: "Workspace not found or you don't have permission to share this workspace." });
     }
 
     const ownerUser = await User.findById(ownerUserID);
     if (!ownerUser) {
-      return res.status(404).json({ status: "error", message: "Owner user not found." });
+      return res.json({ status: "error", message: "Owner user not found." });
     }
 
 
@@ -447,7 +449,7 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
 
     const guestUser = await User.findOne({ email: guestEmailID });
     if (!guestUser) {
-      return res.status(404).json({ status: "error", message: "Guest user not found." });
+      return res.json({ status: "error", message: "Guest user not found." });
     }
 
     const guestUserID = guestUser._id;
@@ -467,14 +469,14 @@ const addCollaboratorToWorkspace = asyncHandler(async (req, res) => {
     );
 
     if (!updatedWorkspace) {
-      return res.status(500).json({ status: "error", message: "Unable to share the workspace with the user!" });
+      return res.json({ status: "error", message: "Unable to share the workspace with the user!" });
     }
 
     res.status(200).json({ status: "success", message: "Workspace shared successfully!", updatedWorkspace });
 
   } catch (error) {
     console.error("error occurred while sharing workspace:", error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: "Unable to share the workspace with the user!",
       error: error.message
@@ -496,7 +498,7 @@ const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
     const workspace = await Workspace.findOne({ _id: workspaceID, owner: ownerUserID });
 
     if (!workspace) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "Workspace not found or you don't have permission to remove collaborators from this workspace."
       });
@@ -505,7 +507,7 @@ const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
     const guestUser = await User.findOne({ email: guestEmailID });
 
     if (!guestUser) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "Guest user not found."
       });
@@ -539,7 +541,7 @@ const removeCollaboratorFromWorkspace = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error("Error occurred while removing collaborator from workspace:", error);
 
-    res.status(500).json({
+    res.json({
       status: "error",
       message: "Unable to remove the collaborator from the workspace!",
       error: error.message
@@ -565,11 +567,11 @@ const getCollaboratorByWorkspaceID = asyncHandler(async (req, res) => {
         workspace,
       });
     } else {
-      res.status(404).json({ status: "error", message: "No workspace found." });
+      res.json({ status: "error", message: "No workspace found." });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "error", error });
+    res.json({ status: "error", error,message: "Internal Server Error!" });
   }
 });
 
@@ -588,11 +590,11 @@ const getSharedWorkspacedByUserID = asyncHandler(async (req, res) => {
         message: "User fetched successfully!"
       });
     } else {
-      res.status(404).json({ status: "error", message: "User not found." });
+      res.json({ status: "error", message: "User not found." });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "error", error });
+    res.json({ status: "error", error,message: "Internal Server Error!" });
   }
 })
 
@@ -611,7 +613,7 @@ const addComment = asyncHandler(async (req, res) => {
     // Find the user's email using the userID
     const senderUser = await User.findById(userID);
     if (!senderUser) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "User not found"
       });
@@ -622,7 +624,7 @@ const addComment = asyncHandler(async (req, res) => {
     // Find the file name using the fileID
     const file = await File.findById(fileID);
     if (!file) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "File not found"
       });
@@ -635,7 +637,7 @@ const addComment = asyncHandler(async (req, res) => {
     const ownerUser = await User.findById(fileOwnerID);
 
     if (!senderUser) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "User not found"
       });
@@ -725,7 +727,7 @@ const addComment = asyncHandler(async (req, res) => {
   } catch (error) {
     // Send error response
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: "Failed to add comment",
       error: error
@@ -743,7 +745,7 @@ const resolveComment = asyncHandler(async (req, res) => {
     // Find the comment
     const comment = await Comment.findById(commentID).populate('user').populate('fileID');
     if (!comment) {
-      return res.status(404).json({
+      return res.json({
         status: "error",
         message: "Comment not found"
       });
@@ -817,7 +819,7 @@ const resolveComment = asyncHandler(async (req, res) => {
   } catch (error) {
     // Send error response
     console.error(error);
-    res.status(500).json({
+    res.json({
       status: "error",
       message: "Failed to remove comment",
       error: error
@@ -844,16 +846,17 @@ const getComments = asyncHandler(async (req, res) => {
         comments
       })
     } else {
-      res.status(404).json({
+      res.json({
         status: "error",
         message: "No comments found for this file.",
       })
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       status: "error",
-      error
+      error,
+      message: "Internal Server Error!"
     })
   }
 
