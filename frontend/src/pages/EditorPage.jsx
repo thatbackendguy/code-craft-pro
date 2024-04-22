@@ -271,7 +271,9 @@ const EditorPage = () => {
               >
                 <VscFile className="mr-2" /> {file.name}
               </h1>
+              <Tooltip title="Delete file" placement="right">
               <MdDeleteOutline className="text-lg text-red-400" onClick={() => deleteCurrFile(file._id)} />
+              </Tooltip>
             </div>
           ),
         };
@@ -464,13 +466,16 @@ useEffect(()=>{
                         : `hover:cursor-pointer`
                     }
                   >
+                    <Tooltip title="Create a new file" placement="topRight">
                     <VscNewFile onClick={handleAddFile} />
+                    </Tooltip>
                   </button>
-
+                  <Tooltip title="Create a new folder" placement="right">
                   <VscNewFolder
                     className={`hover:cursor-pointer ml-2`}
                     onClick={handleAddFolder}
                   />
+</Tooltip>
                 </h1>
               </div>
               {data?.length > 0 ? (

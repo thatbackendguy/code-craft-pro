@@ -188,12 +188,14 @@ const Dashboard = () => {
         <div className="px-12 flex justify-between w-full">
           <div></div>
           <div className="items-center flex">
-            <Tooltip title="Add Workspace">
+            <Tooltip title="Add Workspace" placement="left">
             <button
               className="bg-blue-500 p-5 rounded-full text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 z-[100] bottom-10 right-10 fixed"
               onClick={openModal}
             >
+
               <FaPlus className="text-2xl"/>
+
             </button>
               </Tooltip>
           </div>
@@ -210,6 +212,8 @@ const Dashboard = () => {
             >
               <div className="flex justify-between items-center">
                 <h1 className="text-xl font-semibold">{item.name}</h1>
+
+<Tooltip title="Remove workspace" placement="topLeft">
                 <h1
                   className="text-red-500 text-lg hover:cursor-pointer"
                   onClick={() => {
@@ -218,6 +222,8 @@ const Dashboard = () => {
                 >
                   <MdDeleteOutline className="text-2xl mr-[3px]"/>
                 </h1>
+                </Tooltip>
+
               </div>
 
               <div className="flex items-center justify-between w-full">
@@ -226,13 +232,14 @@ const Dashboard = () => {
                     Open
                   </button>
                 </Link>
-
+                <Tooltip title="Add user to workspace" placement="bottomLeft">
                 <h1
                   className=" text-blue-500 rounded-full mt-4 hover:cursor-pointer"
                   onClick={() => openShareModal(item._id)}
                 >
                   <LuUserPlus2 className="text-2xl" />
                 </h1>
+                </Tooltip>
               </div>
             </div>
           ))}

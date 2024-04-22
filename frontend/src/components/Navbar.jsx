@@ -81,7 +81,7 @@ export default function Navbar() {
             }`}
             id="navbar-default"
           >
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white bg-gray-800 md:bg-gray-900 border-gray-700 items-center">
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 bg-gray-800 md:bg-gray-900 border-gray-700 items-center">
               <li>
                 <Link
                   to="/dashboard"
@@ -101,7 +101,7 @@ export default function Navbar() {
                     />
                   </span>
                   {showDropdown && (
-                    <ul className="absolute top-10 right-0 z-10 bg-white border border-gray-200 rounded-md shadow-lg">
+                    <ul className="absolute top-10 right-0 z-10 bg-white border border-gray-200 rounded-md shadow-lg w-32">
                       <li>
                         <Link
                           to="/profile"
