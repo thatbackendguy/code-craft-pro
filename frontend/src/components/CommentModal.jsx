@@ -103,8 +103,13 @@ const CommentModal = ({
             onChange={handleChange}
           />
           <button
-            onClick={add} disabled={comment.trim().length === 0}
-            className={`flex items-center justify-center w-14 h-12 ${ comment.trim().length ==0 ?"bg-gray-500" :"bg-blue-500 hover:cursor-pointer"} rounded-full text-white hover:cursor-not-allowed`}
+            onClick={add}
+            disabled={comment.trim().length === 0}
+            className={`flex items-center justify-center w-14 h-12 ${
+              comment.trim().length == 0
+                ? "bg-gray-500"
+                : "bg-blue-500 hover:cursor-pointer"
+            } rounded-full text-white hover:cursor-not-allowed`}
           >
             <LuSendHorizonal className="h-5 w-5" />
           </button>

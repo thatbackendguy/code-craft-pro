@@ -12,7 +12,7 @@ import {
   Input,
   Button,
   Badge,
-  Tooltip
+  Tooltip,
 } from "antd";
 
 import axios from "axios";
@@ -32,6 +32,7 @@ const EditorPage = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const editorRef = useRef(null);
@@ -159,10 +160,11 @@ const EditorPage = () => {
       const response = await axios.get(
         BACKEND_URL + `/api/file/comment-get/${selectedFileId}`
       );
-      console.log(response.data);
-      const res = await response;
+
+      //console.log(response.data);
+
       if (response.data.status === "success") {
-        setComments(res.data.comments);
+        setComments(response.data.comments);
       } else {
         setComments([]);
       }
@@ -272,7 +274,10 @@ const EditorPage = () => {
                 <VscFile className="mr-2" /> {file.name}
               </h1>
               <Tooltip title="Delete file" placement="right">
-              <MdDeleteOutline className="text-lg text-red-400" onClick={() => deleteCurrFile(file._id)} />
+                <MdDeleteOutline
+                  className="text-lg text-red-400"
+                  onClick={() => deleteCurrFile(file._id)}
+                />
               </Tooltip>
             </div>
           ),
@@ -341,9 +346,9 @@ const EditorPage = () => {
     getSharedWorkspaces();
   }, []);
 
-useEffect(()=>{
-  getComments();
-}, [selectedFileId])
+  useEffect(() => {
+    getComments();
+  }, [selectedFileId]);
 
   const showCommentModal = () => {
     setComments([]);
@@ -427,15 +432,17 @@ useEffect(()=>{
         <>
           {selectedFileId && (
             <div className="ml-auto fixed bottom-5  z-[100] right-4">
-              <Badge count={comments && comments.length} className="mb-[-40px] w-6"/>
-<Tooltip title="Open comments"  placement="leftTop">
-
-              <button
-                className="bg-blue-500 rounded-full px-4 py-4 text-white inline-block w-[50] ml-auto my-2 mr-12 flex items-center justify-center"
-                onClick={showCommentModal}
-              >
-                <AiOutlineComment className="text-4xl"/>
-              </button>
+              <Badge
+                count={comments && comments.length}
+                className="mb-[-40px] w-6"
+              />
+              <Tooltip title="Open comments" placement="leftTop">
+                <button
+                  className="bg-blue-500 rounded-full px-4 py-4 text-white inline-block w-[50] ml-auto my-2 mr-12 flex items-center justify-center"
+                  onClick={showCommentModal}
+                >
+                  <AiOutlineComment className="text-4xl" />
+                </button>
               </Tooltip>
             </div>
           )}
@@ -467,15 +474,15 @@ useEffect(()=>{
                     }
                   >
                     <Tooltip title="Create a new file" placement="topRight">
-                    <VscNewFile onClick={handleAddFile} />
+                      <VscNewFile onClick={handleAddFile} />
                     </Tooltip>
                   </button>
                   <Tooltip title="Create a new folder" placement="right">
-                  <VscNewFolder
-                    className={`hover:cursor-pointer ml-2`}
-                    onClick={handleAddFolder}
-                  />
-</Tooltip>
+                    <VscNewFolder
+                      className={`hover:cursor-pointer ml-2`}
+                      onClick={handleAddFolder}
+                    />
+                  </Tooltip>
                 </h1>
               </div>
               {data?.length > 0 ? (
